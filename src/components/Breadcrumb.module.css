@@ -1,0 +1,46 @@
+.trail {
+  margin-bottom: 1.1rem;
+}
+
+.list {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.1rem;
+  margin: 0;
+  padding: 0;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+}
+
+.item:not(:last-child)::after {
+  content: '›';
+  color: var(--ink-soft);
+  margin: 0 0.35rem;
+}
+
+.crumb {
+  background: none;
+  border: none;
+  color: var(--ink-soft);
+  cursor: pointer;
+  font-size: 0.82rem;
+  padding: 0.15rem 0.3rem;
+  border-radius: 4px;
+  font-family: inherit;
+  transition: color var(--transition);
+}
+
+.crumb:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.active {
+  color: var(--accent);
+  font-weight: 700;
+}

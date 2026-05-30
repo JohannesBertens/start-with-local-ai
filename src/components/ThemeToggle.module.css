@@ -1,0 +1,15 @@
+.toggle {
+  background: var(--bg-panel);
+  color: var(--ink);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: border-color var(--transition), color var(--transition);
+}
+
+.toggle:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}

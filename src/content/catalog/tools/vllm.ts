@@ -44,7 +44,7 @@ export const vllm: ToolDef = {
           {
             type: 'code',
             lang: 'bash',
-            code: 'docker run --gpus all -p 8000:8000 \\\n  -v ~/.cache/huggingface:/root/.cache/huggingface \\\n  vllm/vllm-openai:latest \\\n  --model Qwen/Qwen2.5-7B-Instruct',
+            code: 'docker run --gpus all -p 8000:8000 \\\n  -v ~/.cache/huggingface:/root/.cache/huggingface \\\n  vllm/vllm-openai:latest \\\n  --model Qwen/Qwen3.6-27B',
           },
           {
             type: 'callout',
@@ -93,7 +93,7 @@ export const vllm: ToolDef = {
         {
           type: 'code',
           lang: 'bash',
-          code: 'vllm serve Qwen/Qwen2.5-7B-Instruct --port 8000',
+          code: 'vllm serve Qwen/Qwen3.6-27B --port 8000',
         },
         {
           type: 'paragraph',
@@ -118,7 +118,7 @@ export const vllm: ToolDef = {
         {
           type: 'code',
           lang: 'bash',
-          code: 'curl http://localhost:8000/v1/chat/completions \\\n  -H "Content-Type: application/json" \\\n  -d \'{\n    "model": "Qwen/Qwen2.5-7B-Instruct",\n    "messages": [{"role": "user", "content": "Hello from vLLM!"}]\n  }\'',
+          code: 'curl http://localhost:8000/v1/chat/completions \\\n  -H "Content-Type: application/json" \\\n  -d \'{\n    "model": "Qwen/Qwen3.6-27B",\n    "messages": [{"role": "user", "content": "Hello from vLLM!"}]\n  }\'',
         },
         {
           type: 'callout',

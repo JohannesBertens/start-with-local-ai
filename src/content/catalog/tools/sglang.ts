@@ -43,7 +43,7 @@ export const sglang: ToolDef = {
           {
             type: 'code',
             lang: 'bash',
-            code: 'docker run --gpus all -p 30000:30000 \\\n  -v ~/.cache/huggingface:/root/.cache/huggingface \\\n  lmsysorg/sglang:latest \\\n  python -m sglang.launch_server \\\n    --model-path Qwen/Qwen2.5-7B-Instruct \\\n    --host 0.0.0.0 --port 30000',
+            code: 'docker run --gpus all -p 30000:30000 \\\n  -v ~/.cache/huggingface:/root/.cache/huggingface \\\n  lmsysorg/sglang:latest \\\n  python -m sglang.launch_server \\\n    --model-path Qwen/Qwen3.6-27B \\\n    --host 0.0.0.0 --port 30000',
           },
           {
             type: 'callout',
@@ -88,7 +88,7 @@ export const sglang: ToolDef = {
         {
           type: 'code',
           lang: 'bash',
-          code: 'python -m sglang.launch_server \\\n  --model-path Qwen/Qwen2.5-7B-Instruct \\\n  --port 30000',
+          code: 'python -m sglang.launch_server \\\n  --model-path Qwen/Qwen3.6-27B \\\n  --port 30000',
         },
         {
           type: 'paragraph',
@@ -108,7 +108,7 @@ export const sglang: ToolDef = {
         {
           type: 'code',
           lang: 'bash',
-          code: 'curl http://localhost:30000/v1/chat/completions \\\n  -H "Content-Type: application/json" \\\n  -d \'{\n    "model": "Qwen/Qwen2.5-7B-Instruct",\n    "messages": [{"role": "user", "content": "Hello from SGLang!"}]\n  }\'',
+          code: 'curl http://localhost:30000/v1/chat/completions \\\n  -H "Content-Type: application/json" \\\n  -d \'{\n    "model": "Qwen/Qwen3.6-27B",\n    "messages": [{"role": "user", "content": "Hello from SGLang!"}]\n  }\'',
         },
         {
           type: 'callout',
@@ -136,7 +136,7 @@ export const sglang: ToolDef = {
         {
           type: 'code',
           lang: 'bash',
-          code: 'curl http://localhost:30000/v1/chat/completions \\\n  -H "Content-Type: application/json" \\\n  -d \'{\n    "model": "Qwen/Qwen2.5-7B-Instruct",\n    "messages": [{"role": "user", "content": "Give me a user as JSON"}],\n    "response_format": {"type": "json_object"}\n  }\'',
+          code: 'curl http://localhost:30000/v1/chat/completions \\\n  -H "Content-Type: application/json" \\\n  -d \'{\n    "model": "Qwen/Qwen3.6-27B",\n    "messages": [{"role": "user", "content": "Give me a user as JSON"}],\n    "response_format": {"type": "json_object"}\n  }\'',
         },
         {
           type: 'list',

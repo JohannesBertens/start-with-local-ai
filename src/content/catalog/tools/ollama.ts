@@ -95,7 +95,7 @@ export const ollama: ToolDef = {
               code: 'docker run -d --gpus=all -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama',
             },
             { type: 'paragraph', text: 'Run a model inside the running container:' },
-            { type: 'code', lang: 'bash', code: 'docker exec -it ollama ollama run llama3.2' },
+            { type: 'code', lang: 'bash', code: 'docker exec -it ollama ollama run qwen3.5' },
             {
               type: 'callout',
               tone: 'tip',
@@ -129,7 +129,7 @@ export const ollama: ToolDef = {
           type: 'paragraph',
           text: 'Now the magic moment. This single command downloads a small, capable model and drops you into a chat with it:',
         },
-        { type: 'code', lang: 'bash', code: 'ollama run llama3.2' },
+        { type: 'code', lang: 'bash', code: 'ollama run qwen3.5' },
         {
           type: 'paragraph',
           text: 'The first run downloads the model (a couple of gigabytes), then shows a ">>>" prompt. Type a message, press Enter, and watch it respond entirely from your machine.',
@@ -145,7 +145,7 @@ export const ollama: ToolDef = {
         {
           type: 'callout',
           tone: 'tip',
-          text: 'Short on memory or patience? Try an even smaller model: "ollama run llama3.2:1b" or "ollama run qwen2.5:0.5b".',
+          text: 'Short on memory or patience? Try an even smaller model: "ollama run qwen3.5:2b" or "ollama run qwen3.5:0.8b".',
         },
       ],
       nextSlug: 'usage',
@@ -158,7 +158,7 @@ export const ollama: ToolDef = {
         {
           type: 'code',
           lang: 'bash',
-          code: 'ollama list        # models you have downloaded\nollama pull mistral # download without running\nollama rm llama3.2  # delete a model to free disk space\nollama ps          # what is currently loaded in memory',
+          code: 'ollama list        # models you have downloaded\nollama pull mistral # download without running\nollama rm qwen3.5   # delete a model to free disk space\nollama ps          # what is currently loaded in memory',
         },
         {
           type: 'paragraph',
@@ -191,7 +191,7 @@ export const ollama: ToolDef = {
         {
           type: 'code',
           lang: 'bash',
-          code: 'curl http://localhost:11434/api/generate -d \'{\n  "model": "llama3.2",\n  "prompt": "Explain local AI in one sentence.",\n  "stream": false\n}\'',
+          code: 'curl http://localhost:11434/api/generate -d \'{\n  "model": "qwen3.5",\n  "prompt": "Explain local AI in one sentence.",\n  "stream": false\n}\'',
         },
         { type: 'heading', text: 'Use the OpenAI-compatible endpoint' },
         {
@@ -211,7 +211,7 @@ export const ollama: ToolDef = {
         {
           type: 'code',
           lang: 'text',
-          code: 'FROM llama3.2\nPARAMETER temperature 0.3\nSYSTEM "You are a terse senior engineer. Answer in at most three sentences."',
+          code: 'FROM qwen3.5\nPARAMETER temperature 0.3\nSYSTEM "You are a terse senior engineer. Answer in at most three sentences."',
         },
         {
           type: 'code',

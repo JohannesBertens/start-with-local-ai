@@ -173,7 +173,7 @@ export const llamacpp: ToolDef = {
           type: 'list',
           ordered: true,
           items: [
-            'On https://huggingface.co search for a model name plus "GGUF" (e.g. "Llama-3.2-3B-Instruct GGUF").',
+            'On https://huggingface.co search for a model name plus "GGUF" (e.g. "Qwen3.5-4B GGUF").',
             'Open a repository from a quantizer such as "bartowski" or "unsloth".',
             'In the Files tab, download one .gguf file. A "Q4_K_M" quant is the popular quality/size balance.',
           ],
@@ -194,7 +194,7 @@ export const llamacpp: ToolDef = {
           type: 'paragraph',
           text: 'Point llama-cli at your downloaded GGUF and start an interactive conversation:',
         },
-        { type: 'code', lang: 'bash', code: 'llama-cli -m ./Llama-3.2-3B-Instruct-Q4_K_M.gguf -cnv' },
+        { type: 'code', lang: 'bash', code: 'llama-cli -m ./Qwen3.5-4B-Q4_K_M.gguf -cnv' },
         {
           type: 'paragraph',
           text: 'The "-cnv" flag enables conversation mode. A few flags you will reach for often:',

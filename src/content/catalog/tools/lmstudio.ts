@@ -116,7 +116,7 @@ export const lmstudio: ToolDef = {
           type: 'list',
           ordered: true,
           items: [
-            'Click the Discover (magnifying glass) tab and search for a model — "Llama 3.2 3B" or "Qwen2.5 7B" are great starters.',
+            'Click the Discover (magnifying glass) tab and search for a model — "Qwen3.5 4B" or "Qwen3.5 9B" are great starters.',
             'Pick a quantization. LM Studio shows a green check next to options that fit comfortably in your memory; a 4-bit (Q4) build is the usual sweet spot.',
             'Click Download and wait for it to finish.',
             'Switch to the Chat (speech bubble) tab, select your model at the top, and start typing.',

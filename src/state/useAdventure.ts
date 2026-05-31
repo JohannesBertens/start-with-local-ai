@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useReducer } from 'react';
 import type { Choice, NodeId, StoryNode } from '../content/types';
+import { START_NODE } from '../content/types';
 import { story } from '../content/story';
 import {
   adventureReducer,
@@ -26,7 +27,14 @@ export function useAdventure() {
     document.documentElement.setAttribute('data-theme', state.theme);
   }, [state.theme]);
 
-  const currentNode: StoryNode = story[state.currentNodeId];
+  // Defensive guard: if persisted/tampered state points at a node that no longer
+  // exists in the (catalog-built) graph, reset navigation to a known-good start.
+  const resolvedNode = story[state.currentNodeId];
+  useEffect(() => {
+    if (!resolvedNode) dispatch({ type: 'reset' });
+  }, [resolvedNode]);
+
+  const currentNode: StoryNode = resolvedNode ?? story[START_NODE];
 
   const choose = useCallback(
     (choice: Choice) => dispatch({ type: 'choose', choice }),

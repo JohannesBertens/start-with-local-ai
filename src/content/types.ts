@@ -1,12 +1,19 @@
-export type OS = 'windows' | 'macos' | 'linux';
+export type OS = 'windows' | 'macos' | 'linux' | 'docker';
 export type Level = 'beginner' | 'advanced';
-export type Tool = 'ollama' | 'lmstudio' | 'llamacpp';
+export type Tool = 'ollama' | 'lmstudio' | 'llamacpp' | 'vllm' | 'sglang';
+export type Hardware =
+  | 'nvidia-gpu'
+  | 'amd-gpu'
+  | 'amd-strix'
+  | 'nvidia-spark'
+  | 'cpu';
 
 /** Facts accumulated about the user's chosen path. */
 export interface AdventureFacts {
   reason?: string;
   level?: Level;
   os?: OS;
+  hardware?: Hardware;
   tool?: Tool;
 }
 
@@ -21,6 +28,12 @@ export type ContentBlock =
 
 export type NodeId = string;
 
+/** Extra background shown in a modal when a choice's (i) button is clicked. */
+export interface ChoiceInfo {
+  title: string;
+  body: ContentBlock[];
+}
+
 export interface Choice {
   label: string;
   to: NodeId;
@@ -28,6 +41,8 @@ export interface Choice {
   sets?: Partial<AdventureFacts>;
   /** Optional helper text shown beneath the choice. */
   hint?: string;
+  /** Optional richer detail revealed via an (i) button in a modal. */
+  info?: ChoiceInfo;
 }
 
 export interface StoryNode {

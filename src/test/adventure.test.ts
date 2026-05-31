@@ -17,7 +17,7 @@ const toLevel: Choice = {
   to: 'choose-os',
   sets: { level: 'beginner' },
 };
-const toOs: Choice = { label: 'Linux', to: 'choose-tool-linux', sets: { os: 'linux' } };
+const toOs: Choice = { label: 'Linux', to: 'choose-hw-linux', sets: { os: 'linux' } };
 
 describe('adventureReducer', () => {
   it('starts at the intro node', () => {
@@ -69,7 +69,7 @@ describe('adventureReducer', () => {
     let s = freshState();
     s = adventureReducer(s, { type: 'advance', to: 'why-local' });
     s = adventureReducer(s, { type: 'choose', choice: toLevel }); // -> choose-os
-    s = adventureReducer(s, { type: 'choose', choice: toOs }); // -> choose-tool-linux
+    s = adventureReducer(s, { type: 'choose', choice: toOs }); // -> choose-hw-linux
 
     // Step back to choose-os and pick a different OS.
     s = adventureReducer(s, { type: 'back' });
@@ -77,15 +77,15 @@ describe('adventureReducer', () => {
 
     s = adventureReducer(s, {
       type: 'choose',
-      choice: { label: 'Windows', to: 'choose-tool-windows', sets: { os: 'windows' } },
+      choice: { label: 'Windows', to: 'choose-hw-windows', sets: { os: 'windows' } },
     });
 
-    expect(s.currentNodeId).toBe('choose-tool-windows');
+    expect(s.currentNodeId).toBe('choose-hw-windows');
     expect(s.history).toEqual([
       'intro',
       'why-local',
       'choose-os',
-      'choose-tool-windows',
+      'choose-hw-windows',
     ]);
     expect(s.facts.os).toBe('windows');
   });

@@ -1,16 +1,14 @@
 import type { Story } from './types';
-import { coreNodes } from './intro';
-import { ollamaNodes } from './ollama';
-import { lmStudioNodes } from './lmstudio';
-import { llamaCppNodes } from './llamacpp';
+import { buildStory } from './build';
 import { validateStory } from './validate';
 
-export const story: Story = {
-  ...coreNodes,
-  ...ollamaNodes,
-  ...lmStudioNodes,
-  ...llamaCppNodes,
-};
+/**
+ * The full story graph, generated from the catalog (src/content/catalog/) by the
+ * builder. The UI, reducer, persistence, and validator all treat this as a plain
+ * StoryNode map — adding a tool, OS, or hardware option is a pure data edit in
+ * the catalog with no changes here.
+ */
+export const story: Story = buildStory();
 
 // Fail loudly during development if the graph has broken links or dead ends.
 if (import.meta.env?.DEV) {

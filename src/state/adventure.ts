@@ -19,6 +19,7 @@ export type AdventureAction =
   | { type: 'back' }
   | { type: 'forward' }
   | { type: 'jumpTo'; index: number }
+  | { type: 'exploreAlternate'; index: number; choice: Choice }
   | { type: 'reset' }
   | { type: 'setTheme'; theme: Theme }
   | { type: 'toggleTheme' };
@@ -98,6 +99,23 @@ export function adventureReducer(
         cursor: action.index,
         currentNodeId: state.history[action.index],
       };
+    }
+
+    case 'exploreAlternate': {
+      // Re-take a decision at an earlier branch point: rewind to that node,
+      // then follow the chosen edge. goToNew slices off the now-divergent
+      // future when the alternate leads somewhere new, and falls back to a
+      // cursor move (preserving downstream progress) when the alternate
+      // converges on the same next node — only its facts differ.
+      if (action.index < 0 || action.index >= state.history.length) {
+        return state;
+      }
+      const rewound: AdventureState = {
+        ...state,
+        cursor: action.index,
+        currentNodeId: state.history[action.index],
+      };
+      return goToNew(rewound, action.choice.to, action.choice.sets);
     }
 
     case 'reset': {

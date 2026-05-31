@@ -114,6 +114,65 @@ describe('adventureReducer', () => {
     expect(s).toBe(before);
   });
 
+  it('exploreAlternate rewinds to a branch and takes a divergent edge, discarding the future', () => {
+    let s = freshState();
+    s = adventureReducer(s, { type: 'advance', to: 'why-local' });
+    s = adventureReducer(s, { type: 'choose', choice: toLevel }); // -> choose-os (index 2)
+    s = adventureReducer(s, { type: 'choose', choice: toOs }); // -> choose-hw-linux (index 3)
+
+    // From the full path, explore a different OS at the choose-os node (index 2).
+    s = adventureReducer(s, {
+      type: 'exploreAlternate',
+      index: 2,
+      choice: { label: 'Windows', to: 'choose-hw-windows', sets: { os: 'windows' } },
+    });
+
+    expect(s.currentNodeId).toBe('choose-hw-windows');
+    expect(s.history).toEqual([
+      'intro',
+      'why-local',
+      'choose-os',
+      'choose-hw-windows',
+    ]);
+    expect(s.cursor).toBe(3);
+    expect(s.facts.os).toBe('windows');
+  });
+
+  it('exploreAlternate at a convergent fork keeps the downstream path and only swaps facts', () => {
+    let s = freshState();
+    s = adventureReducer(s, { type: 'advance', to: 'why-local' }); // index 1
+    s = adventureReducer(s, {
+      type: 'choose',
+      choice: { label: 'Privacy', to: 'choose-level', sets: { reason: 'privacy' } },
+    }); // -> choose-level (index 2)
+    s = adventureReducer(s, { type: 'choose', choice: toLevel }); // -> choose-os (index 3)
+
+    // Every reason converges on choose-level, so switching reason should not
+    // discard the level/os progress that does not depend on it.
+    s = adventureReducer(s, {
+      type: 'exploreAlternate',
+      index: 1,
+      choice: { label: 'Cost', to: 'choose-level', sets: { reason: 'cost' } },
+    });
+
+    expect(s.facts.reason).toBe('cost');
+    expect(s.currentNodeId).toBe('choose-level');
+    expect(s.history).toEqual(['intro', 'why-local', 'choose-level', 'choose-os']);
+    expect(s.cursor).toBe(2);
+  });
+
+  it('exploreAlternate ignores out-of-range indices', () => {
+    let s = freshState();
+    s = adventureReducer(s, { type: 'advance', to: 'why-local' });
+    const before = s;
+    s = adventureReducer(s, {
+      type: 'exploreAlternate',
+      index: 99,
+      choice: toLevel,
+    });
+    expect(s).toBe(before);
+  });
+
   it('resets to a clean state but keeps the theme', () => {
     let s = freshState();
     s = adventureReducer(s, { type: 'setTheme', theme: 'dark' });

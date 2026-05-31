@@ -22,7 +22,11 @@ export default function App() {
       </header>
 
       <main className={styles.main}>
-        <Breadcrumb trail={adventure.trail} onJump={adventure.jumpTo} />
+        <Breadcrumb
+          trail={adventure.trail}
+          onJump={adventure.jumpTo}
+          onExplore={adventure.exploreAlternate}
+        />
 
         {currentNode ? (
           <NodeView

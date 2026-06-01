@@ -8,12 +8,12 @@ afterEach(cleanup);
 
 const privacy: Choice = {
   label: 'Privacy',
-  to: 'choose-level',
+  to: 'choose-usecase',
   sets: { reason: 'privacy' },
 };
 const cost: Choice = {
   label: 'Cost',
-  to: 'choose-level',
+  to: 'choose-usecase',
   sets: { reason: 'cost' },
 };
 
@@ -26,11 +26,11 @@ function makeTrail(): TrailItem[] {
       title: 'Why local, not the cloud?',
       active: false,
       branches: [
-        { label: 'Privacy', to: 'choose-level', taken: true, choice: privacy },
-        { label: 'Cost', to: 'choose-level', taken: false, choice: cost },
+        { label: 'Privacy', to: 'choose-usecase', taken: true, choice: privacy },
+        { label: 'Cost', to: 'choose-usecase', taken: false, choice: cost },
       ],
     },
-    { id: 'choose-level', index: 2, title: 'How deep do you want to go?', active: true, branches: [] },
+    { id: 'choose-usecase', index: 2, title: 'What do you want to do?', active: true, branches: [] },
   ];
 }
 
@@ -50,7 +50,7 @@ describe('Breadcrumb', () => {
     render(<Breadcrumb trail={makeTrail()} onJump={() => {}} onExplore={() => {}} />);
     const toggle = screen.getByRole('button', { expanded: false });
     expect(toggle).toHaveTextContent('Welcome, traveler');
-    expect(toggle).toHaveTextContent('How deep do you want to go?');
+    expect(toggle).toHaveTextContent('What do you want to do?');
     expect(toggle).toHaveTextContent('…');
     // Intermediate node titles are hidden until expanded.
     expect(screen.queryByText('Why local, not the cloud?')).toBeNull();
@@ -107,7 +107,7 @@ describe('Breadcrumb', () => {
     render(<Breadcrumb trail={makeTrail()} onJump={() => {}} onExplore={() => {}} />);
     fireEvent.click(screen.getByRole('button', { expanded: false }));
 
-    const active = screen.getByRole('button', { name: 'How deep do you want to go?' });
+    const active = screen.getByRole('button', { name: 'What do you want to do?' });
     expect(active).toHaveAttribute('aria-current', 'step');
     const inactive = screen.getByRole('button', { name: 'Welcome, traveler' });
     expect(inactive).not.toHaveAttribute('aria-current');

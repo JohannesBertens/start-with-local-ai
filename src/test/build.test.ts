@@ -17,10 +17,9 @@ describe('catalog + builder', () => {
     expect(validateStory(buildStory())).toEqual({ ok: true, errors: [] });
   });
 
-  it('starts from the fixed intro -> why-local -> choose-level -> choose-usecase', () => {
+  it('starts from the fixed intro -> why-local -> choose-usecase', () => {
     expect(story.intro.next).toBe('why-local');
-    expect(story['why-local'].choices?.every((c) => c.to === 'choose-level')).toBe(true);
-    expect(story['choose-level'].choices?.every((c) => c.to === CHOOSE_USECASE_ID)).toBe(true);
+    expect(story['why-local'].choices?.every((c) => c.to === CHOOSE_USECASE_ID)).toBe(true);
   });
 
   it('offers the three use cases, each routing into its own OS-selection node', () => {
@@ -130,9 +129,9 @@ describe('catalog + builder', () => {
   });
 
   it('attaches background info to every user selection choice', () => {
-    // Every choice on a decision node (why-local, choose-level, choose-usecase,
+    // Every choice on a decision node (why-local, choose-usecase,
     // choose-os-*, choose-hw-*, choose-tool-*) should expose a researched (i) modal.
-    const selectionNodeIds = ['why-local', 'choose-level', CHOOSE_USECASE_ID];
+    const selectionNodeIds = ['why-local', CHOOSE_USECASE_ID];
     const isSelectionNode = (n: StoryNode) =>
       selectionNodeIds.includes(n.id) ||
       n.id.startsWith('choose-os-') ||

@@ -1,5 +1,4 @@
 export type OS = 'windows' | 'macos' | 'linux' | 'docker';
-export type Level = 'beginner' | 'advanced';
 /** What the user wants to do locally — picked before the platform (OS). */
 export type UseCase = 'chat' | 'image-video' | 'coding';
 export type Tool =
@@ -26,7 +25,6 @@ export type Hardware =
 /** Facts accumulated about the user's chosen path. */
 export interface AdventureFacts {
   reason?: string;
-  level?: Level;
   useCase?: UseCase;
   os?: OS;
   hardware?: Hardware;

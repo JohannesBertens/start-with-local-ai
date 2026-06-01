@@ -37,7 +37,7 @@ export interface TrailItem {
 /**
  * Was this choice the one taken on the current path? Destination alone is not
  * enough: several choices can converge on the same node (e.g. every "why local"
- * reason leads to `choose-level`). Each fork sets a distinct, discriminating
+ * reason leads to `choose-usecase`). Each fork sets a distinct, discriminating
  * fact, so we additionally require the choice's defined `sets` to match the
  * accumulated facts.
  */

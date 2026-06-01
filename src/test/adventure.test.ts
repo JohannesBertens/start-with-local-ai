@@ -12,10 +12,10 @@ function freshState(): AdventureState {
   return initState(defaultState());
 }
 
-const toLevel: Choice = {
-  label: 'Beginner',
+const toUseCase: Choice = {
+  label: 'Chat',
   to: 'choose-os',
-  sets: { level: 'beginner' },
+  sets: { useCase: 'chat' },
 };
 const toOs: Choice = { label: 'Linux', to: 'choose-hw-linux', sets: { os: 'linux' } };
 
@@ -32,20 +32,20 @@ describe('adventureReducer', () => {
     s = adventureReducer(s, { type: 'advance', to: 'why-local' });
     s = adventureReducer(s, {
       type: 'choose',
-      choice: { label: 'Privacy', to: 'choose-level', sets: { reason: 'privacy' } },
+      choice: { label: 'Privacy', to: 'choose-usecase', sets: { reason: 'privacy' } },
     });
-    s = adventureReducer(s, { type: 'choose', choice: toLevel });
+    s = adventureReducer(s, { type: 'choose', choice: toUseCase });
 
     expect(s.currentNodeId).toBe('choose-os');
-    expect(s.facts).toEqual({ reason: 'privacy', level: 'beginner' });
-    expect(s.history).toEqual(['intro', 'why-local', 'choose-level', 'choose-os']);
+    expect(s.facts).toEqual({ reason: 'privacy', useCase: 'chat' });
+    expect(s.history).toEqual(['intro', 'why-local', 'choose-usecase', 'choose-os']);
     expect(s.cursor).toBe(3);
   });
 
   it('moves the cursor with back and forward without losing history', () => {
     let s = freshState();
     s = adventureReducer(s, { type: 'advance', to: 'why-local' });
-    s = adventureReducer(s, { type: 'choose', choice: toLevel });
+    s = adventureReducer(s, { type: 'choose', choice: toUseCase });
 
     s = adventureReducer(s, { type: 'back' });
     expect(s.currentNodeId).toBe('why-local');
@@ -68,7 +68,7 @@ describe('adventureReducer', () => {
   it('truncates the future path when choosing a new branch after stepping back', () => {
     let s = freshState();
     s = adventureReducer(s, { type: 'advance', to: 'why-local' });
-    s = adventureReducer(s, { type: 'choose', choice: toLevel }); // -> choose-os
+    s = adventureReducer(s, { type: 'choose', choice: toUseCase }); // -> choose-os
     s = adventureReducer(s, { type: 'choose', choice: toOs }); // -> choose-hw-linux
 
     // Step back to choose-os and pick a different OS.
@@ -93,9 +93,9 @@ describe('adventureReducer', () => {
   it('keeps the path when re-choosing the same next node', () => {
     let s = freshState();
     s = adventureReducer(s, { type: 'advance', to: 'why-local' });
-    s = adventureReducer(s, { type: 'choose', choice: toLevel }); // -> choose-os
+    s = adventureReducer(s, { type: 'choose', choice: toUseCase }); // -> choose-os
     s = adventureReducer(s, { type: 'back' }); // back to why-local
-    s = adventureReducer(s, { type: 'choose', choice: toLevel }); // same choice again
+    s = adventureReducer(s, { type: 'choose', choice: toUseCase }); // same choice again
 
     expect(s.history).toEqual(['intro', 'why-local', 'choose-os']);
     expect(s.cursor).toBe(2);
@@ -104,7 +104,7 @@ describe('adventureReducer', () => {
   it('jumps to a valid history index and ignores invalid ones', () => {
     let s = freshState();
     s = adventureReducer(s, { type: 'advance', to: 'why-local' });
-    s = adventureReducer(s, { type: 'choose', choice: toLevel });
+    s = adventureReducer(s, { type: 'choose', choice: toUseCase });
 
     s = adventureReducer(s, { type: 'jumpTo', index: 0 });
     expect(s.currentNodeId).toBe('intro');
@@ -117,7 +117,7 @@ describe('adventureReducer', () => {
   it('exploreAlternate rewinds to a branch and takes a divergent edge, discarding the future', () => {
     let s = freshState();
     s = adventureReducer(s, { type: 'advance', to: 'why-local' });
-    s = adventureReducer(s, { type: 'choose', choice: toLevel }); // -> choose-os (index 2)
+    s = adventureReducer(s, { type: 'choose', choice: toUseCase }); // -> choose-os (index 2)
     s = adventureReducer(s, { type: 'choose', choice: toOs }); // -> choose-hw-linux (index 3)
 
     // From the full path, explore a different OS at the choose-os node (index 2).
@@ -143,21 +143,21 @@ describe('adventureReducer', () => {
     s = adventureReducer(s, { type: 'advance', to: 'why-local' }); // index 1
     s = adventureReducer(s, {
       type: 'choose',
-      choice: { label: 'Privacy', to: 'choose-level', sets: { reason: 'privacy' } },
-    }); // -> choose-level (index 2)
-    s = adventureReducer(s, { type: 'choose', choice: toLevel }); // -> choose-os (index 3)
+      choice: { label: 'Privacy', to: 'choose-usecase', sets: { reason: 'privacy' } },
+    }); // -> choose-usecase (index 2)
+    s = adventureReducer(s, { type: 'choose', choice: toUseCase }); // -> choose-os (index 3)
 
-    // Every reason converges on choose-level, so switching reason should not
-    // discard the level/os progress that does not depend on it.
+    // Every reason converges on choose-usecase, so switching reason should not
+    // discard the useCase/os progress that does not depend on it.
     s = adventureReducer(s, {
       type: 'exploreAlternate',
       index: 1,
-      choice: { label: 'Cost', to: 'choose-level', sets: { reason: 'cost' } },
+      choice: { label: 'Cost', to: 'choose-usecase', sets: { reason: 'cost' } },
     });
 
     expect(s.facts.reason).toBe('cost');
-    expect(s.currentNodeId).toBe('choose-level');
-    expect(s.history).toEqual(['intro', 'why-local', 'choose-level', 'choose-os']);
+    expect(s.currentNodeId).toBe('choose-usecase');
+    expect(s.history).toEqual(['intro', 'why-local', 'choose-usecase', 'choose-os']);
     expect(s.cursor).toBe(2);
   });
 
@@ -168,7 +168,7 @@ describe('adventureReducer', () => {
     s = adventureReducer(s, {
       type: 'exploreAlternate',
       index: 99,
-      choice: toLevel,
+      choice: toUseCase,
     });
     expect(s).toBe(before);
   });
@@ -177,7 +177,7 @@ describe('adventureReducer', () => {
     let s = freshState();
     s = adventureReducer(s, { type: 'setTheme', theme: 'dark' });
     s = adventureReducer(s, { type: 'advance', to: 'why-local' });
-    s = adventureReducer(s, { type: 'choose', choice: toLevel });
+    s = adventureReducer(s, { type: 'choose', choice: toUseCase });
 
     s = adventureReducer(s, { type: 'reset' });
     expect(s.currentNodeId).toBe('intro');

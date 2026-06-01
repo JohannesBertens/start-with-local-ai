@@ -3,7 +3,7 @@ import type { Story } from './types';
 /**
  * The fixed lead-in nodes that precede the data-driven (catalog-built) portion
  * of the adventure. These do not multiply with tools/OSes/hardware, so they stay
- * hand-written. `choose-level` hands off to the generated `choose-usecase` node.
+ * hand-written. `why-local` hands off to the generated `choose-usecase` node.
  */
 export const fixedNodes: Story = {
   intro: {
@@ -54,7 +54,7 @@ export const fixedNodes: Story = {
     choices: [
       {
         label: 'Privacy — my prompts and data stay on my machine',
-        to: 'choose-level',
+        to: 'choose-usecase',
         sets: { reason: 'privacy' },
         hint: 'Nothing leaves your computer. Ideal for sensitive notes, code, or personal data.',
         info: {
@@ -82,7 +82,7 @@ export const fixedNodes: Story = {
       },
       {
         label: 'Cost — no per-token bills or monthly subscriptions',
-        to: 'choose-level',
+        to: 'choose-usecase',
         sets: { reason: 'cost' },
         hint: 'Pay once (in hardware) and run as much as you like.',
         info: {
@@ -110,7 +110,7 @@ export const fixedNodes: Story = {
       },
       {
         label: 'Offline — I want it to work without internet',
-        to: 'choose-level',
+        to: 'choose-usecase',
         sets: { reason: 'offline' },
         hint: 'Planes, trains, cabins, and locked-down networks.',
         info: {
@@ -138,7 +138,7 @@ export const fixedNodes: Story = {
       },
       {
         label: 'Control & tinkering — I want to swap models and poke under the hood',
-        to: 'choose-level',
+        to: 'choose-usecase',
         sets: { reason: 'control' },
         hint: 'Full control over models, parameters, and prompts.',
         info: {
@@ -151,7 +151,7 @@ export const fixedNodes: Story = {
             {
               type: 'list',
               items: [
-                'Swap freely: try Llama, Qwen, Mistral, Gemma, DeepSeek and more, at different sizes and quantization levels.',
+                'Swap freely: try Llama, Qwen, Mistral, Gemma, DeepSeek and more, at different sizes and quantization variants.',
                 'Tune everything: temperature, context length, and prompt format are all yours to adjust — no hidden server-side defaults.',
                 'Build on it: OpenAI-compatible local endpoints let your existing code talk to your own model by changing only the base URL.',
               ],
@@ -159,77 +159,7 @@ export const fixedNodes: Story = {
             {
               type: 'callout',
               tone: 'info',
-              text: 'If you enjoy poking under the hood, the Advanced track and llama.cpp give you the deepest level of control.',
-            },
-          ],
-        },
-      },
-    ],
-  },
-
-  'choose-level': {
-    id: 'choose-level',
-    title: 'How deep do you want to go?',
-    body: [
-      {
-        type: 'paragraph',
-        text: 'The first real question. How much technical detail do you want? You can always come back and switch tracks.',
-      },
-    ],
-    choices: [
-      {
-        label: 'Beginner — just get me chatting with a model',
-        to: 'choose-usecase',
-        // Switching level invalidates any downstream selections.
-        sets: { level: 'beginner', useCase: undefined, os: undefined, hardware: undefined, tool: undefined },
-        hint: 'Clear, copy-paste steps. We skip the deep theory.',
-        info: {
-          title: 'Beginner track — what you get',
-          body: [
-            {
-              type: 'paragraph',
-              text: 'The Beginner track gets you chatting with a model as fast as possible. It favours friendly tools with installers (Ollama, LM Studio), copy-paste commands, and sensible defaults — no theory you do not need yet.',
-            },
-            {
-              type: 'list',
-              items: [
-                'Focus: install a tool, download a model, start a conversation.',
-                'Minimal jargon: we explain the few terms that matter and skip the rest.',
-                'Safe to pick: you can switch to the Advanced track at any time without starting over.',
-              ],
-            },
-            {
-              type: 'callout',
-              tone: 'tip',
-              text: 'Most people should start here. You can always go deeper once the basics click.',
-            },
-          ],
-        },
-      },
-      {
-        label: 'Advanced — I want the details and the power tools',
-        to: 'choose-usecase',
-        sets: { level: 'advanced', useCase: undefined, os: undefined, hardware: undefined, tool: undefined },
-        hint: 'APIs, servers, quantization, and configuration along the way.',
-        info: {
-          title: 'Advanced track — what you get',
-          body: [
-            {
-              type: 'paragraph',
-              text: 'The Advanced track adds the details and the power tools: running a local API server, tuning performance and quantization, and engines built for throughput like vLLM and SGLang alongside llama.cpp.',
-            },
-            {
-              type: 'list',
-              items: [
-                'Focus: serving models over an API, configuration, quantization, and getting the most from your hardware.',
-                'More options: surfaces server-grade tools that the Beginner track keeps out of the way.',
-                'Assumes comfort with a terminal and editing config — but still step-by-step.',
-              ],
-            },
-            {
-              type: 'callout',
-              tone: 'info',
-              text: 'Pick this if you plan to build on top of a model (apps, agents, automation) rather than just chat.',
+              text: 'If you enjoy poking under the hood, tools like llama.cpp give you the deepest level of control.',
             },
           ],
         },

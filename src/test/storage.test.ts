@@ -25,8 +25,8 @@ describe('storage', () => {
     const state: PersistedState = {
       version: SCHEMA_VERSION,
       currentNodeId: 'choose-os',
-      history: ['intro', 'why-local', 'choose-level', 'choose-os'],
-      facts: { reason: 'privacy', level: 'beginner' },
+      history: ['intro', 'why-local', 'choose-usecase', 'choose-os'],
+      facts: { reason: 'privacy', useCase: 'chat' },
       theme: 'dark',
     };
     saveState(state);

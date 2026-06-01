@@ -15,6 +15,8 @@ export function hardwareLabel(hw?: Hardware): string {
       return 'an AMD Strix / Strix Halo APU';
     case 'nvidia-spark':
       return 'an NVIDIA DGX Spark';
+    case 'apple-silicon':
+      return 'Apple Silicon (M-series)';
     case 'cpu':
       return 'a CPU-only machine';
     default:
@@ -73,7 +75,11 @@ export function isServerOS(os: OS): boolean {
 }
 
 export function ctxKey(ctx: PathContext): string {
-  const base = ctx.hardware ? `${ctx.os}-${ctx.hardware}` : ctx.os;
+  const base = ctx.hardware
+    ? ctx.ramGb
+      ? `${ctx.os}-${ctx.hardware}-${ctx.ramGb}`
+      : `${ctx.os}-${ctx.hardware}`
+    : ctx.os;
   return `${ctx.useCase}-${base}`;
 }
 

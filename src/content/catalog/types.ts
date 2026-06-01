@@ -16,6 +16,16 @@ export interface PathContext {
   useCase: UseCase;
   os: OS;
   hardware?: Hardware;
+  /** RAM amount in GB — required only for hardware with `askRam`. */
+  ramGb?: number;
+}
+
+/** A RAM tier option shown on the "how much RAM?" step. */
+export interface RamTierDef {
+  id: number;
+  label: string;
+  hint?: string;
+  info: ContentBlock[];
 }
 
 /** A use-case option shown on the "what do you want to do?" step. */
@@ -37,17 +47,15 @@ export interface OSDef {
   label: string;
   hint?: string;
   /**
+   * Hardware profiles for this OS (shown in the hardware-selection step).
+   * When absent the OS has no separate hardware step (e.g. Docker).
+   */
+  hardware?: Hardware[];
+  /**
    * Richer background about the OS, revealed in a modal from the OS-selection
    * step's (i) button. Kept here (data) so the UI stays generic.
    */
   info: ContentBlock[];
-  /**
-   * Hardware profiles that make sense for this OS, in display order. When
-   * present and non-empty, the user is asked to pick hardware before tools so
-   * that hardware-specific guidance can be shown. Omit (or leave empty) to skip
-   * the hardware step entirely (e.g. macOS, Docker).
-   */
-  hardware?: Hardware[];
 }
 
 /** A hardware profile shown on the "what are you running on?" step. */
@@ -60,6 +68,14 @@ export interface HardwareDef {
    * hardware-selection step's (i) button.
    */
   info: ContentBlock[];
+  /**
+   * When true, the hardware step shows a RAM input sub-field before the user can
+   * proceed. Used for unified-memory systems (Apple Silicon, Strix Halo) and
+   * CPU-only paths where available system RAM determines which models fit.
+   */
+  askRam?: boolean;
+  /** Placeholder text shown inside the RAM input (e.g. "32"). */
+  ramHint?: string;
 }
 
 /** A shared tutorial step that follows installation (first run, usage, ...). */

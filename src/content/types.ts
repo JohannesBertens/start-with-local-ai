@@ -20,7 +20,8 @@ export type Hardware =
   | 'amd-gpu'
   | 'amd-strix'
   | 'nvidia-spark'
-  | 'cpu';
+  | 'cpu'
+  | 'apple-silicon';
 
 /** Facts accumulated about the user's chosen path. */
 export interface AdventureFacts {
@@ -28,6 +29,7 @@ export interface AdventureFacts {
   useCase?: UseCase;
   os?: OS;
   hardware?: Hardware;
+  ramGb?: number;
   tool?: Tool;
 }
 

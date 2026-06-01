@@ -41,13 +41,15 @@ describe('catalog + builder', () => {
     expect(imageOs).toContain('Windows');
   });
 
-  it('routes Windows/Linux through a hardware step but macOS/Docker straight to tools', () => {
+  it('routes Windows/Linux through a hardware step; macOS through Apple Silicon; Docker straight to tools', () => {
     const target = (osId: string) =>
       story['choose-os-chat'].choices?.find((c) => c.label === getOS(osId as never)?.label)?.to;
 
     expect(target('windows')).toBe('choose-hw-chat-windows');
     expect(target('linux')).toBe('choose-hw-chat-linux');
-    expect(target('macos')).toBe('choose-tool-chat-macos');
+    // macOS now has apple-silicon as its hardware option — goes through the hw step.
+    expect(target('macos')).toBe('choose-hw-chat-macos');
+    // Docker has no hardware field — routes directly to tool selection.
     expect(target('docker')).toBe('choose-tool-chat-docker');
   });
 

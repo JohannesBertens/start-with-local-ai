@@ -14,7 +14,7 @@ export interface PersistedState {
 export const STORAGE_KEY = 'swla:v1';
 // Bump when the persisted shape or node-id scheme changes so returning users do
 // not land on a node id that no longer exists in the (now catalog-built) graph.
-export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION = 3;
 
 export function prefersDark(): boolean {
   return (

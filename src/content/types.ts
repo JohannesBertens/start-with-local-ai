@@ -1,6 +1,21 @@
 export type OS = 'windows' | 'macos' | 'linux' | 'docker';
 export type Level = 'beginner' | 'advanced';
-export type Tool = 'ollama' | 'lmstudio' | 'llamacpp' | 'vllm' | 'sglang';
+/** What the user wants to do locally — picked before the platform (OS). */
+export type UseCase = 'chat' | 'image-video' | 'coding';
+export type Tool =
+  | 'ollama'
+  | 'lmstudio'
+  | 'llamacpp'
+  | 'vllm'
+  | 'sglang'
+  | 'jan'
+  | 'gpt4all'
+  | 'tabby'
+  | 'comfyui'
+  | 'a1111'
+  | 'fooocus'
+  | 'invokeai'
+  | 'sdnext';
 export type Hardware =
   | 'nvidia-gpu'
   | 'amd-gpu'
@@ -12,6 +27,7 @@ export type Hardware =
 export interface AdventureFacts {
   reason?: string;
   level?: Level;
+  useCase?: UseCase;
   os?: OS;
   hardware?: Hardware;
   tool?: Tool;

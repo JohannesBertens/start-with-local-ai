@@ -27,21 +27,25 @@ together:
 
 - `src/content/types.ts` — core graph types: `StoryNode`, `Choice`, `ContentBlock`
   (discriminated union: paragraph/heading/list/code/callout/link), `AdventureFacts`
-  (`reason`/`level`/`os`/`hardware`/`tool`), `OS`/`Tool`/`Hardware` unions, and
-  `START_NODE`.
+  (`reason`/`level`/`useCase`/`os`/`hardware`/`tool`), `OS`/`UseCase`/`Tool`/`Hardware`
+  unions, and `START_NODE`.
 - `src/content/catalog/` — **the information layer (data).**
-  - `catalog/types.ts` — `OSDef`, `HardwareDef`, `ToolDef` (with `supports(ctx)`,
-    `install(ctx)`, and shared `steps`), `PathContext`, and `EXPLORE_TARGET`.
+  - `catalog/types.ts` — `UseCaseDef`, `OSDef`, `HardwareDef`, `ToolDef` (with
+    `useCases`, `supports(ctx)`, `install(ctx)`, and shared `steps`), `PathContext`
+    (`useCase`/`os`/`hardware`), and `EXPLORE_TARGET`.
+  - `catalog/usecases.ts` — `useCases` (chat / image-video / coding). Each tool is
+    tagged with the `useCases` it serves; only those paths offer it.
   - `catalog/os.ts` — `operatingSystems` and `hardwareProfiles`. An `OSDef.hardware`
     list (Windows/Linux) inserts a hardware-selection step; omit it to skip to tools.
   - `catalog/tools/*.ts` — one `ToolDef` per tool. `catalog/index.ts` lists them and
-    exposes `toolsFor(ctx)`, `enumerateContexts()`, `selectableHardwareFor(os)`.
-- `src/content/build.ts` — `buildStory()` generates the graph: `choose-os` →
-  `choose-hw-{os}` (when applicable) → `choose-tool-{os}[-{hw}]` → `{tool}-{ctx}-install`
-  → shared `{tool}-{slug}` steps. Empty contexts are filtered out; upstream choices
-  clear downstream facts.
+    exposes `toolsFor(ctx)`, `enumerateContexts()`, `selectableHardwareFor(useCase, os)`.
+- `src/content/build.ts` — `buildStory()` generates the graph: `choose-usecase` →
+  `choose-os-{useCase}` → `choose-hw-{useCase}-{os}` (when applicable) →
+  `choose-tool-{useCase}-{os}[-{hw}]` → `{tool}-{ctx}-install` → shared `{tool}-{slug}`
+  steps. `ctxKey` is `{useCase}-{os}[-{hardware}]`. Empty contexts are filtered out;
+  upstream choices clear downstream facts.
 - `src/content/fixed.ts` — the only hand-written nodes: `intro`, `why-local`,
-  `choose-level` (no combinatorial explosion there).
+  `choose-level` (which routes to the generated `choose-usecase`).
 - `src/content/story.ts` — `story = buildStory()`; runs the validator in DEV.
 - `src/content/validate.ts` — graph validator: every `next`/`choice.to` target exists,
   non-terminal nodes have a way forward, all nodes reachable from `START_NODE`.
@@ -60,10 +64,12 @@ together:
 ## Conventions
 
 - **Extend the catalog, not the graph.** Add a tool via a `ToolDef` in
-  `catalog/tools/` (+ list it in `catalog/index.ts`); add an OS/hardware via `OSDef`/
-  `HardwareDef` in `catalog/os.ts`. Do NOT hand-write per-(tool×OS×hardware) nodes —
-  the builder generates them. A tool declares which contexts it `supports`; the
-  builder only offers it where supported and filters out empty contexts.
+  `catalog/tools/` (+ list it in `catalog/index.ts`); add a use case via `UseCaseDef`
+  in `catalog/usecases.ts`; add an OS/hardware via `OSDef`/`HardwareDef` in
+  `catalog/os.ts`. Do NOT hand-write per-(useCase×tool×OS×hardware) nodes —
+  the builder generates them. A tool declares which `useCases` it serves and which
+  contexts it `supports`; the builder only offers it where supported and filters out
+  empty contexts.
 - **Content uses `ContentBlock` unions, not raw HTML/JSX.** Body content is an
   array of structured blocks; add a new block type by extending the union in
   `types.ts` and handling it in `components/ContentBlocks/`.

@@ -73,5 +73,51 @@ export function isServerOS(os: OS): boolean {
 }
 
 export function ctxKey(ctx: PathContext): string {
-  return ctx.hardware ? `${ctx.os}-${ctx.hardware}` : ctx.os;
+  const base = ctx.hardware ? `${ctx.os}-${ctx.hardware}` : ctx.os;
+  return `${ctx.useCase}-${base}`;
+}
+
+/**
+ * A reusable callout for image/video generation tools, tailoring VRAM advice to
+ * the chosen hardware. Image and video models are far more GPU-hungry than chat.
+ */
+export function imageGpuNote(hw?: Hardware): ContentBlock {
+  switch (hw) {
+    case 'nvidia-gpu':
+      return {
+        type: 'callout',
+        tone: 'tip',
+        text: 'NVIDIA is the smoothest path for image/video. ~6–8 GB VRAM handles SD 1.5/SDXL; 12–16 GB+ is comfortable for FLUX and short video. Install a recent driver so CUDA is detected.',
+      };
+    case 'amd-gpu':
+      return {
+        type: 'callout',
+        tone: 'info',
+        text: 'AMD works via ROCm (Linux, supported RDNA cards) or DirectML/Zluda on Windows — expect a little more setup than NVIDIA. 8 GB+ VRAM recommended.',
+      };
+    case 'amd-strix':
+      return {
+        type: 'callout',
+        tone: 'info',
+        text: 'Strix / Strix Halo shares system RAM with the iGPU. Raise the VRAM (UMA) allocation in the BIOS; generation runs but is slower than a discrete GPU.',
+      };
+    case 'nvidia-spark':
+      return {
+        type: 'callout',
+        tone: 'info',
+        text: 'DGX Spark is ARM64 with a large unified memory pool — use ARM64/CUDA builds. Plenty of memory for big models, though bandwidth caps raw speed.',
+      };
+    case 'cpu':
+      return {
+        type: 'callout',
+        tone: 'warning',
+        text: 'CPU-only image generation works but is very slow (minutes per image). Expect to wait, and prefer smaller models like SD 1.5 over SDXL/FLUX.',
+      };
+    default:
+      return {
+        type: 'callout',
+        tone: 'info',
+        text: 'Image and video models lean heavily on the GPU. A discrete GPU with plenty of VRAM makes the biggest difference to speed and which models you can run.',
+      };
+  }
 }

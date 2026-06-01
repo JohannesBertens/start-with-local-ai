@@ -1,53 +1,87 @@
 import type { Choice, NodeId, Story, StoryNode } from './types';
+import type { UseCase } from './types';
 import {
   enumerateContexts,
   hardwareFor,
   operatingSystems,
   selectableHardwareFor,
   toolsFor,
+  useCases,
   type OSDef,
   type PathContext,
   type ToolDef,
+  type UseCaseDef,
 } from './catalog';
 import { EXPLORE_TARGET } from './catalog/types';
 import { ctxKey } from './catalog/tools/shared';
 import { fixedNodes } from './fixed';
 
-/** The OS-selection node id; also the target of "explore another path". */
-export const CHOOSE_OS_ID: NodeId = 'choose-os';
+/** The use-case-selection node id; also the target of "explore another path". */
+export const CHOOSE_USECASE_ID: NodeId = 'choose-usecase';
 
-const chooseHwId = (os: string): NodeId => `choose-hw-${os}`;
+const chooseOsId = (useCase: UseCase): NodeId => `choose-os-${useCase}`;
+const chooseHwId = (useCase: UseCase, os: string): NodeId => `choose-hw-${useCase}-${os}`;
 const chooseToolId = (ctx: PathContext): NodeId => `choose-tool-${ctxKey(ctx)}`;
 const installId = (tool: ToolDef, ctx: PathContext): NodeId =>
   `${tool.id}-${ctxKey(ctx)}-install`;
 const stepId = (tool: ToolDef, slug: string): NodeId => `${tool.id}-${slug}`;
 
-/** Does choosing this OS lead anywhere (a hardware step or a tool step)? */
-function osIsReachable(os: OSDef): boolean {
+/** Does this use case lead to at least one selectable context? */
+function useCaseIsReachable(useCase: UseCaseDef): boolean {
+  return operatingSystems.some((os) => osIsReachable(useCase.id, os));
+}
+
+/** Does choosing this OS (for a use case) lead anywhere (a hardware or tool step)? */
+function osIsReachable(useCase: UseCase, os: OSDef): boolean {
   return hardwareFor(os).length > 0
-    ? selectableHardwareFor(os).length > 0
-    : toolsFor({ os: os.id }).length > 0;
+    ? selectableHardwareFor(useCase, os).length > 0
+    : toolsFor({ useCase, os: os.id }).length > 0;
 }
 
 /** Where an OS choice routes: its hardware step, or straight to tool selection. */
-function osTarget(os: OSDef): NodeId {
-  return hardwareFor(os).length > 0 ? chooseHwId(os.id) : chooseToolId({ os: os.id });
+function osTarget(useCase: UseCase, os: OSDef): NodeId {
+  return hardwareFor(os).length > 0
+    ? chooseHwId(useCase, os.id)
+    : chooseToolId({ useCase, os: os.id });
 }
 
-function buildChooseOS(): StoryNode {
+function buildChooseUseCase(): StoryNode {
+  const choices: Choice[] = useCases.filter(useCaseIsReachable).map((uc) => ({
+    label: uc.label,
+    hint: uc.hint,
+    to: chooseOsId(uc.id),
+    // Choosing a use case invalidates any downstream OS/hardware/tool selection.
+    sets: { useCase: uc.id, os: undefined, hardware: undefined, tool: undefined },
+    info: { title: `${uc.label} — background`, body: uc.info },
+  }));
+
+  return {
+    id: CHOOSE_USECASE_ID,
+    title: 'What do you want to do?',
+    body: [
+      {
+        type: 'paragraph',
+        text: 'Local AI is good at very different jobs. Tell us what you are here for and we will show only the tools that fit — then route the rest of the adventure to your machine.',
+      },
+    ],
+    choices,
+  };
+}
+
+function buildChooseOS(useCase: UseCaseDef): StoryNode {
   const choices: Choice[] = operatingSystems
-    .filter(osIsReachable)
+    .filter((os) => osIsReachable(useCase.id, os))
     .map((os) => ({
       label: os.label,
       hint: os.hint,
-      to: osTarget(os),
+      to: osTarget(useCase.id, os),
       // Choosing an OS invalidates any downstream hardware/tool selection.
       sets: { os: os.id, hardware: undefined, tool: undefined },
       info: { title: `${os.label} — background`, body: os.info },
     }));
 
   return {
-    id: CHOOSE_OS_ID,
+    id: chooseOsId(useCase.id),
     title: 'Which machine are you on?',
     body: [
       {
@@ -59,18 +93,18 @@ function buildChooseOS(): StoryNode {
   };
 }
 
-function buildChooseHardware(os: OSDef): StoryNode {
-  const choices: Choice[] = selectableHardwareFor(os).map((hw) => ({
+function buildChooseHardware(useCase: UseCase, os: OSDef): StoryNode {
+  const choices: Choice[] = selectableHardwareFor(useCase, os).map((hw) => ({
     label: hw.label,
     hint: hw.hint,
-    to: chooseToolId({ os: os.id, hardware: hw.id }),
+    to: chooseToolId({ useCase, os: os.id, hardware: hw.id }),
     // Choosing hardware invalidates any previously selected tool.
     sets: { hardware: hw.id, tool: undefined },
     info: { title: `${hw.label} — background`, body: hw.info },
   }));
 
   return {
-    id: chooseHwId(os.id),
+    id: chooseHwId(useCase, os.id),
     title: `What are you running on? (${os.label})`,
     body: [
       {
@@ -123,7 +157,13 @@ function buildToolSteps(tool: ToolDef): StoryNode[] {
     const choices: Choice[] | undefined = step.choices?.map((c) => ({
       label: c.label,
       hint: c.hint,
-      to: c.to === EXPLORE_TARGET ? CHOOSE_OS_ID : stepId(tool, c.to),
+      to: c.to === EXPLORE_TARGET ? CHOOSE_USECASE_ID : stepId(tool, c.to),
+      // "Explore another path" returns to the top of the funnel; clear all
+      // downstream facts so the recap/breadcrumb reflect a fresh start.
+      sets:
+        c.to === EXPLORE_TARGET
+          ? { useCase: undefined, os: undefined, hardware: undefined, tool: undefined }
+          : undefined,
     }));
 
     return {
@@ -150,12 +190,19 @@ export function buildStory(): Story {
     story[node.id] = node;
   };
 
-  add(buildChooseOS());
+  add(buildChooseUseCase());
 
-  // Hardware-selection steps (only for OSes that ask about hardware).
-  for (const os of operatingSystems) {
-    if (hardwareFor(os).length > 0 && selectableHardwareFor(os).length > 0) {
-      add(buildChooseHardware(os));
+  // OS-selection steps, one per reachable use case.
+  for (const useCase of useCases) {
+    if (useCaseIsReachable(useCase)) add(buildChooseOS(useCase));
+  }
+
+  // Hardware-selection steps (per use case, only for OSes that ask about hardware).
+  for (const useCase of useCases) {
+    for (const os of operatingSystems) {
+      if (hardwareFor(os).length > 0 && selectableHardwareFor(useCase.id, os).length > 0) {
+        add(buildChooseHardware(useCase.id, os));
+      }
     }
   }
 

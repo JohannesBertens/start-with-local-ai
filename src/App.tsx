@@ -48,12 +48,13 @@ export default function App() {
       </main>
 
       <footer className={styles.footer}>
-        {state.facts.reason || state.facts.level || state.facts.os || state.facts.tool ? (
+        {state.facts.reason || state.facts.level || state.facts.useCase || state.facts.os || state.facts.tool ? (
           <p className={styles.recap}>
             Your adventure:{' '}
             {[
               state.facts.reason && `reason: ${state.facts.reason}`,
               state.facts.level && `level: ${state.facts.level}`,
+              state.facts.useCase && `goal: ${state.facts.useCase}`,
               state.facts.os && `os: ${state.facts.os}`,
               state.facts.tool && `tool: ${state.facts.tool}`,
             ]

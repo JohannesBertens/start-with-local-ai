@@ -5,6 +5,7 @@ import { gpuNote } from './shared';
 export const ollama: ToolDef = {
   id: 'ollama',
   label: 'Ollama',
+  useCases: ['chat', 'coding'],
   summary: 'Simplest command-line start.',
   info: [
     {

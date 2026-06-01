@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { story } from '../content/story';
-import { buildStory, CHOOSE_OS_ID } from '../content/build';
+import { buildStory, CHOOSE_USECASE_ID } from '../content/build';
 import { validateStory } from '../content/validate';
 import {
   enumerateContexts,
@@ -8,6 +8,7 @@ import {
   selectableHardwareFor,
   toolsFor,
   getOS,
+  useCases,
 } from '../content/catalog';
 import type { StoryNode } from '../content/types';
 
@@ -16,33 +17,49 @@ describe('catalog + builder', () => {
     expect(validateStory(buildStory())).toEqual({ ok: true, errors: [] });
   });
 
-  it('starts from the fixed intro -> why-local -> choose-level -> choose-os', () => {
+  it('starts from the fixed intro -> why-local -> choose-level -> choose-usecase', () => {
     expect(story.intro.next).toBe('why-local');
     expect(story['why-local'].choices?.every((c) => c.to === 'choose-level')).toBe(true);
-    expect(story['choose-level'].choices?.every((c) => c.to === CHOOSE_OS_ID)).toBe(true);
+    expect(story['choose-level'].choices?.every((c) => c.to === CHOOSE_USECASE_ID)).toBe(true);
   });
 
-  it('offers every reachable OS on the choose-os node, including docker', () => {
-    const labels = story[CHOOSE_OS_ID].choices?.map((c) => c.label) ?? [];
-    expect(labels).toEqual(operatingSystems.map((o) => o.label));
-    expect(labels).toContain('Docker');
+  it('offers the three use cases, each routing into its own OS-selection node', () => {
+    const choices = story[CHOOSE_USECASE_ID].choices ?? [];
+    const labels = choices.map((c) => c.label);
+    expect(labels).toEqual(useCases.map((u) => u.label));
+    for (const uc of useCases) {
+      const choice = choices.find((c) => c.sets?.useCase === uc.id);
+      expect(choice?.to).toBe(`choose-os-${uc.id}`);
+      expect(story[`choose-os-${uc.id}`]).toBeDefined();
+    }
+  });
+
+  it('offers reachable OSes per use case (chat reaches docker, image-video does not)', () => {
+    const chatOs = story['choose-os-chat'].choices?.map((c) => c.label) ?? [];
+    expect(chatOs).toContain('Docker');
+    const imageOs = story['choose-os-image-video'].choices?.map((c) => c.label) ?? [];
+    expect(imageOs).not.toContain('Docker');
+    expect(imageOs).toContain('Windows');
   });
 
   it('routes Windows/Linux through a hardware step but macOS/Docker straight to tools', () => {
     const target = (osId: string) =>
-      story[CHOOSE_OS_ID].choices?.find((c) => c.label === getOS(osId as never)?.label)?.to;
+      story['choose-os-chat'].choices?.find((c) => c.label === getOS(osId as never)?.label)?.to;
 
-    expect(target('windows')).toBe('choose-hw-windows');
-    expect(target('linux')).toBe('choose-hw-linux');
-    expect(target('macos')).toBe('choose-tool-macos');
-    expect(target('docker')).toBe('choose-tool-docker');
+    expect(target('windows')).toBe('choose-hw-chat-windows');
+    expect(target('linux')).toBe('choose-hw-chat-linux');
+    expect(target('macos')).toBe('choose-tool-chat-macos');
+    expect(target('docker')).toBe('choose-tool-chat-docker');
   });
 
   it('clears downstream facts when an upstream choice is made', () => {
-    const osChoice = story[CHOOSE_OS_ID].choices?.[0];
+    const ucChoice = story[CHOOSE_USECASE_ID].choices?.[0];
+    expect(ucChoice?.sets).toMatchObject({ os: undefined, hardware: undefined, tool: undefined });
+
+    const osChoice = story['choose-os-chat'].choices?.[0];
     expect(osChoice?.sets).toMatchObject({ hardware: undefined, tool: undefined });
 
-    const hwChoice = story['choose-hw-linux'].choices?.[0];
+    const hwChoice = story['choose-hw-chat-linux'].choices?.[0];
     expect(hwChoice?.sets).toMatchObject({ tool: undefined });
   });
 
@@ -55,40 +72,70 @@ describe('catalog + builder', () => {
   });
 
   it('only offers hardware options that lead to a supported tool', () => {
-    for (const os of operatingSystems) {
-      for (const hw of selectableHardwareFor(os)) {
-        expect(toolsFor({ os: os.id, hardware: hw.id }).length).toBeGreaterThan(0);
+    for (const uc of useCases) {
+      for (const os of operatingSystems) {
+        for (const hw of selectableHardwareFor(uc.id, os)) {
+          expect(toolsFor({ useCase: uc.id, os: os.id, hardware: hw.id }).length).toBeGreaterThan(0);
+        }
       }
     }
   });
 
-  it('restricts vLLM/SGLang to Linux GPUs and Docker', () => {
-    // Not available on Windows or macOS.
+  it('curates the top-5 tools per use case (no overflowing tool lists)', () => {
+    const inUseCase = (uc: string) => tools_of(uc);
+    function tools_of(uc: string): string[] {
+      const ids = new Set<string>();
+      for (const ctx of enumerateContexts()) {
+        if (ctx.useCase !== uc) continue;
+        for (const t of toolsFor(ctx)) ids.add(t.id);
+      }
+      return [...ids];
+    }
+    expect(inUseCase('chat').sort()).toEqual(
+      ['gpt4all', 'jan', 'llamacpp', 'lmstudio', 'ollama'].sort(),
+    );
+    expect(inUseCase('coding').sort()).toEqual(
+      ['llamacpp', 'ollama', 'sglang', 'tabby', 'vllm'].sort(),
+    );
+    expect(inUseCase('image-video').sort()).toEqual(
+      ['a1111', 'comfyui', 'fooocus', 'invokeai', 'sdnext'].sort(),
+    );
+    // Any single tool-selection node offers at most five options.
+    const toolNodes = Object.values(story).filter((n) => n.id.startsWith('choose-tool-'));
+    for (const node of toolNodes) {
+      expect(node.choices?.length ?? 0).toBeLessThanOrEqual(5);
+    }
+  });
+
+  it('restricts vLLM/SGLang to the coding use case on Linux GPUs and Docker', () => {
     for (const ctx of enumerateContexts()) {
       const ids = toolsFor(ctx).map((t) => t.id);
       if (ctx.os === 'windows' || ctx.os === 'macos') {
         expect(ids).not.toContain('vllm');
         expect(ids).not.toContain('sglang');
       }
+      // Server engines never appear outside the coding use case.
+      if (ctx.useCase !== 'coding') {
+        expect(ids).not.toContain('vllm');
+        expect(ids).not.toContain('sglang');
+      }
     }
-    // Available on Linux + NVIDIA GPU.
-    const linuxNvidia = toolsFor({ os: 'linux', hardware: 'nvidia-gpu' }).map((t) => t.id);
+    const linuxNvidia = toolsFor({ useCase: 'coding', os: 'linux', hardware: 'nvidia-gpu' }).map((t) => t.id);
     expect(linuxNvidia).toEqual(expect.arrayContaining(['vllm', 'sglang']));
-    // SGLang is NVIDIA-only: not offered for a plain AMD GPU.
-    const linuxAmd = toolsFor({ os: 'linux', hardware: 'amd-gpu' }).map((t) => t.id);
+    const linuxAmd = toolsFor({ useCase: 'coding', os: 'linux', hardware: 'amd-gpu' }).map((t) => t.id);
     expect(linuxAmd).toContain('vllm');
     expect(linuxAmd).not.toContain('sglang');
-    // Both available via Docker.
-    const docker = toolsFor({ os: 'docker' }).map((t) => t.id);
+    const docker = toolsFor({ useCase: 'coding', os: 'docker' }).map((t) => t.id);
     expect(docker).toEqual(expect.arrayContaining(['vllm', 'sglang']));
   });
 
   it('attaches background info to every user selection choice', () => {
-    // Every choice on a decision node (why-local, choose-level, choose-os,
-    // choose-hw-*, choose-tool-*) should expose a researched (i) modal.
-    const selectionNodeIds = ['why-local', 'choose-level', CHOOSE_OS_ID];
+    // Every choice on a decision node (why-local, choose-level, choose-usecase,
+    // choose-os-*, choose-hw-*, choose-tool-*) should expose a researched (i) modal.
+    const selectionNodeIds = ['why-local', 'choose-level', CHOOSE_USECASE_ID];
     const isSelectionNode = (n: StoryNode) =>
       selectionNodeIds.includes(n.id) ||
+      n.id.startsWith('choose-os-') ||
       n.id.startsWith('choose-hw-') ||
       n.id.startsWith('choose-tool-');
 
@@ -113,13 +160,13 @@ describe('catalog + builder', () => {
     }
   });
 
-  it('loops terminal "done" steps back to the OS-selection node', () => {
+  it('loops terminal "done" steps back to the use-case-selection node', () => {
     const doneNodes = Object.values(story).filter(
       (n: StoryNode) => n.terminal && n.id.endsWith('-done'),
     );
     expect(doneNodes.length).toBeGreaterThan(0);
     for (const node of doneNodes) {
-      expect(node.choices?.some((c) => c.to === CHOOSE_OS_ID)).toBe(true);
+      expect(node.choices?.some((c) => c.to === CHOOSE_USECASE_ID)).toBe(true);
     }
   });
 });

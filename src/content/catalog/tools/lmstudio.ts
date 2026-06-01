@@ -4,6 +4,7 @@ import { EXPLORE_TARGET } from '../types';
 export const lmstudio: ToolDef = {
   id: 'lmstudio',
   label: 'LM Studio',
+  useCases: ['chat'],
   summary: 'Polished graphical desktop app.',
   info: [
     {

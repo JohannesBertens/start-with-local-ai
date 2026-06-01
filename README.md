@@ -7,11 +7,15 @@ leave and resume exactly where you left off.
 
 The journey opens with a short introduction to today's local-AI options and asks
 *why* you want to run AI locally instead of in the cloud. From there it branches on
-your **technical level** (Beginner / Advanced), **operating system**
+your **technical level** (Beginner / Advanced), **what you want to do**
+(Chat / Image & video generation / Coding inference server), your **operating system**
 (Windows / macOS / Linux / Docker), and — on Windows and Linux — your **hardware**
 (NVIDIA GPU, AMD GPU, AMD Strix, NVIDIA DGX Spark, or CPU-only), then walks you
-through real install-and-first-run tutorials for **Ollama**, **LM Studio**,
-**llama.cpp**, **vLLM**, and **SGLang**.
+through real install-and-first-run tutorials for the top tools in each category:
+
+- **Chat** — Ollama, LM Studio, llama.cpp, Jan, GPT4All
+- **Image & video** — ComfyUI, AUTOMATIC1111 (SD WebUI), Fooocus, InvokeAI, SD.Next
+- **Coding inference server** — Ollama, llama.cpp, vLLM, SGLang, Tabby
 
 ## Features
 
@@ -58,13 +62,14 @@ src/
 
 ### Adding to the adventure
 
-The whole tutorial is **data**. The selection funnel (OS → hardware → tool) and the
-install steps are *generated* from `src/content/catalog/` by `buildStory()`
+The whole tutorial is **data**. The selection funnel (use case → OS → hardware → tool)
+and the install steps are *generated* from `src/content/catalog/` by `buildStory()`
 (`src/content/build.ts`), so you never hand-wire combinatorial nodes:
 
 - **Add a tool** — create a `ToolDef` in `src/content/catalog/tools/` (declare which
-  contexts it `supports`, its `install(ctx)` content, and shared `steps`) and list it
-  in `catalog/index.ts`.
+  `useCases` it serves, which contexts it `supports`, its `install(ctx)` content, and
+  shared `steps`) and list it in `catalog/index.ts`.
+- **Add a use case** — add a `UseCaseDef` to `catalog/usecases.ts` and tag tools with it.
 - **Add an OS** — add an `OSDef` to `catalog/os.ts` (set `hardware` to ask a hardware
   question, omit it to skip straight to tools).
 - **Add a hardware profile** — add a `HardwareDef` to `catalog/os.ts` and reference its

@@ -1,17 +1,34 @@
-import type { ContentBlock, Hardware, NodeId, OS, Tool } from '../types';
+import type { ContentBlock, Hardware, NodeId, OS, Tool, UseCase } from '../types';
 
 /**
- * The catalog describes the tutorial purely as *information*: which operating
- * systems, hardware profiles, and tools exist, and what content to show for a
- * given combination. The graph `builder` turns this data into the StoryNode
- * graph the UI renders, so adding a tool / OS / hardware option is a data edit
- * with no changes to presentation or navigation logic.
+ * The catalog describes the tutorial purely as *information*: which use cases,
+ * operating systems, hardware profiles, and tools exist, and what content to
+ * show for a given combination. The graph `builder` turns this data into the
+ * StoryNode graph the UI renders, so adding a tool / OS / hardware / use case is
+ * a data edit with no changes to presentation or navigation logic.
  */
 
-/** A resolved selection context: the OS and (optionally) the chosen hardware. */
+/**
+ * A resolved selection context: what the user wants to do (use case), the OS,
+ * and (optionally) the chosen hardware.
+ */
 export interface PathContext {
+  useCase: UseCase;
   os: OS;
   hardware?: Hardware;
+}
+
+/** A use-case option shown on the "what do you want to do?" step. */
+export interface UseCaseDef {
+  id: UseCase;
+  label: string;
+  hint?: string;
+  /**
+   * Richer background about the use case, revealed in a modal from the
+   * use-case-selection step's (i) button. Kept here (data) so the UI stays
+   * generic.
+   */
+  info: ContentBlock[];
 }
 
 /** An operating-system option shown on the "which machine are you on?" step. */
@@ -76,6 +93,8 @@ export const EXPLORE_TARGET = '@explore';
 export interface ToolDef {
   id: Tool;
   label: string;
+  /** Use cases this tool serves; it is only offered on those paths. */
+  useCases: UseCase[];
   /** One-line summary used as the hint on the tool-selection step. */
   summary: string;
   /**

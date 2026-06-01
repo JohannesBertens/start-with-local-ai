@@ -4,6 +4,7 @@ import { EXPLORE_TARGET } from '../types';
 export const sglang: ToolDef = {
   id: 'sglang',
   label: 'SGLang',
+  useCases: ['coding'],
   summary: 'Fast serving runtime with structured-output superpowers.',
   info: [
     {

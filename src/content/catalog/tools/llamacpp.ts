@@ -5,6 +5,7 @@ import { gpuNote } from './shared';
 export const llamacpp: ToolDef = {
   id: 'llamacpp',
   label: 'llama.cpp',
+  useCases: ['chat', 'coding'],
   summary: 'The lean, bare-metal engine — most control.',
   info: [
     {

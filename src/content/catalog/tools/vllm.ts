@@ -5,6 +5,7 @@ import { GPU_HARDWARE } from './shared';
 export const vllm: ToolDef = {
   id: 'vllm',
   label: 'vLLM',
+  useCases: ['coding'],
   summary: 'High-throughput GPU serving engine (OpenAI-compatible).',
   info: [
     {

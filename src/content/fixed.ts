@@ -3,7 +3,7 @@ import type { Story } from './types';
 /**
  * The fixed lead-in nodes that precede the data-driven (catalog-built) portion
  * of the adventure. These do not multiply with tools/OSes/hardware, so they stay
- * hand-written. `choose-level` hands off to the generated `choose-os` node.
+ * hand-written. `choose-level` hands off to the generated `choose-usecase` node.
  */
 export const fixedNodes: Story = {
   intro: {
@@ -16,22 +16,21 @@ export const fixedNodes: Story = {
       },
       {
         type: 'paragraph',
-        text: 'This is a build-your-own adventure. You make the choices; we assemble a tutorial that fits your machine and your comfort level. Your progress is saved in your browser, so you can wander off and come back to exactly where you left.',
+        text: 'This is a build-your-own adventure. You make the choices; we assemble a tutorial that fits what you want to do, your machine, and your comfort level. Your progress is saved in your browser, so you can wander off and come back to exactly where you left.',
       },
-      { type: 'heading', text: 'The landscape today' },
+      { type: 'heading', text: 'What you can do locally' },
       {
         type: 'list',
         items: [
-          'Ollama — the friendliest on-ramp. One install, then "ollama run" and you are chatting with a model.',
-          'LM Studio — a polished desktop app with a model browser and a built-in chat window. Great if you prefer buttons over a terminal.',
-          'llama.cpp — the lean, fast engine that powers much of the ecosystem. Maximum control, minimum hand-holding.',
-          'vLLM & SGLang — GPU-powered serving engines for high-throughput, OpenAI-compatible APIs.',
+          'Chat — run a private ChatGPT-style assistant with tools like Ollama, LM Studio, llama.cpp, Jan, and GPT4All.',
+          'Generate images & video — paint from a prompt with Stable Diffusion / FLUX using ComfyUI, AUTOMATIC1111, Fooocus, InvokeAI, or SD.Next.',
+          'Run an inference server — serve an OpenAI-compatible API for coding assistants, apps, and agents with Ollama, llama.cpp, vLLM, SGLang, or Tabby.',
         ],
       },
       {
         type: 'callout',
         tone: 'tip',
-        text: 'They all run the same kind of open models (Llama, Mistral, Qwen, Gemma and friends). You can switch later — picking one now is not a life sentence.',
+        text: 'In a moment we will ask which of these three you are here for, then narrow things down to the handful of tools that fit your goal and your machine. You can always come back and explore another path.',
       },
     ],
     next: 'why-local',
@@ -180,9 +179,9 @@ export const fixedNodes: Story = {
     choices: [
       {
         label: 'Beginner — just get me chatting with a model',
-        to: 'choose-os',
+        to: 'choose-usecase',
         // Switching level invalidates any downstream selections.
-        sets: { level: 'beginner', os: undefined, hardware: undefined, tool: undefined },
+        sets: { level: 'beginner', useCase: undefined, os: undefined, hardware: undefined, tool: undefined },
         hint: 'Clear, copy-paste steps. We skip the deep theory.',
         info: {
           title: 'Beginner track — what you get',
@@ -209,8 +208,8 @@ export const fixedNodes: Story = {
       },
       {
         label: 'Advanced — I want the details and the power tools',
-        to: 'choose-os',
-        sets: { level: 'advanced', os: undefined, hardware: undefined, tool: undefined },
+        to: 'choose-usecase',
+        sets: { level: 'advanced', useCase: undefined, os: undefined, hardware: undefined, tool: undefined },
         hint: 'APIs, servers, quantization, and configuration along the way.',
         info: {
           title: 'Advanced track — what you get',

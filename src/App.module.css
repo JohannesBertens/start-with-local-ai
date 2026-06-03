@@ -1,47 +1,6 @@
 .shell {
-  max-width: var(--maxw);
-  margin: 0 auto;
-  padding: 1.5rem 1.25rem 3rem;
+  /* The shell wraps the NavBar (positioned fixed) and the active page.
+     No extra padding needed — the per-page modules handle their own
+     spacing for the fixed nav bar. */
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.75rem;
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 1.15rem;
-  font-family: var(--font-display);
-}
-
-.brand strong {
-  color: var(--accent);
-}
-
-.mark {
-  color: var(--accent);
-  font-size: 1.3rem;
-}
-
-.main {
-  flex: 1;
-}
-
-.footer {
-  margin-top: 2rem;
-  text-align: center;
-}
-
-.recap {
-  font-size: 0.82rem;
-  color: var(--ink-soft);
-  font-style: italic;
 }

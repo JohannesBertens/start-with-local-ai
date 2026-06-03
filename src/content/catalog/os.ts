@@ -464,6 +464,11 @@ export const vramTiers: RamTierDef[] = [
           'Note: 72B at Q4 (~40 GB) does not fit — need 32 GB or dual GPU.',
         ],
       },
+      {
+        type: 'callout',
+        tone: 'tip',
+        text: 'MTP (Multi-Token Prediction) can give up to 3× speedup on compatible models without a separate draft model. DeepSeek V3, Gemma 4, and many new models ship built-in MTP heads — enable them via --speculative-config in vLLM for nearly free throughput gains.',
+      },
     ],
   },
   {
@@ -535,6 +540,11 @@ export const vramTiers: RamTierDef[] = [
           'Step 3.5 Flash (196B MoE, 11B active) at Q4_K_S (112 GB) — fits on RTX PRO 6000 via CPU offload. 100–300 tok/s, SWE-bench 74.4%.',
           'Step 3.7 Flash (198B MoE + vision) at IQ4_XS (105 GB) — SWE-Bench PRO 56.3, ClawEval 67.1. Apache 2.0, May 2026.',
         ],
+      },
+      {
+        type: 'callout',
+        tone: 'info',
+        text: 'Step 3.5 Flash and Step 3.7 Flash use MTP-3 (three-token multi-token prediction) during both training and inference, meaning they were trained to predict three future tokens per position. This gives them a built-in speculative decoding path without a separate draft model. vLLM supports MTP for these models via --speculative-config method=mtp.',
       },
     ],
   },

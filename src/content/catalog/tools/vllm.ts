@@ -16,7 +16,7 @@ export const vllm: ToolDef = {
       type: 'list',
       items: [
         'Best for: production serving and high-concurrency workloads with many distinct prompts.',
-        'Key features: PagedAttention, continuous batching, speculative decoding, and quantization (AWQ/GPTQ/FP8).',
+        'Key features: PagedAttention, continuous batching, native MTP (Multi-Token Prediction) support for up to 3× faster inference on compatible models, speculative decoding, and quantization (AWQ/GPTQ/FP8).',
         'Hardware: the broadest reach of these engines — NVIDIA and AMD GPUs, plus AWS Trainium, Google TPU, and Intel Gaudi.',
         'API: serves an OpenAI-compatible endpoint, so existing OpenAI clients work by pointing at your local server.',
       ],
@@ -133,8 +133,68 @@ export const vllm: ToolDef = {
           to: 'advanced',
           hint: 'Quantization, tensor parallelism, and throughput tuning.',
         },
+        {
+          label: 'Try MTP — multi-token prediction for speed',
+          to: 'mtp',
+          hint: 'Up to 3× speedup with no quality loss on compatible models.',
+        },
         { label: 'The server is up — wrap up', to: 'done' },
       ],
+    },
+    {
+      slug: 'mtp',
+      title: 'Multi-Token Prediction (MTP) — faster inference',
+      body: [
+        {
+          type: 'paragraph',
+          text: 'MTP (Multi-Token Prediction) is a speculative decoding technique where the model itself predicts several future tokens in parallel, rather than relying on a separate draft model. The main model verifies all draft tokens in a single forward pass — accepting them when they match, rejecting and correcting when they don\'t. The result: up to 3× faster generation with zero quality degradation.',
+        },
+        {
+          type: 'heading',
+          text: 'When to use MTP',
+        },
+        {
+          type: 'list',
+          items: [
+            'Your model natively supports MTP heads (DeepSeek V3, Gemma 4, MiMo-7B, and many 2025–2026 models have built-in MTP modules).',
+            'You want speculative decoding gains without managing a separate draft model or downloading extra checkpoints.',
+            'You are latency-sensitive: chat, coding assistants, and agentic workflows benefit most.',
+          ],
+        },
+        {
+          type: 'heading',
+          text: 'Enable MTP in vLLM',
+        },
+        {
+          type: 'paragraph',
+          text: 'Pass --speculative-config when starting the server:',
+        },
+        {
+          type: 'code',
+          lang: 'bash',
+          code: 'vllm serve google/gemma-4-26B-A4B-it \
+  --tensor-parallel-size 1 \
+  --max-model-len 8192 \
+  --speculative-config \'{"method": "mtp", "num_speculative_tokens": 1}\'',
+        },
+        {
+          type: 'paragraph',
+          text: 'For models with a dedicated MTP drafter checkpoint (like Gemma 4\'s assistant models), pass the drafter in the config:',
+        },
+        {
+          type: 'code',
+          lang: 'bash',
+          code: 'vllm serve google/gemma-4-31B-it \
+  --speculative-config \'{"method": "mtp", "model": "gg-hf-am/gemma-4-31B-it-assistant", "num_speculative_tokens": 1}\'',
+        },
+        {
+          type: 'callout',
+          tone: 'tip',
+          text: 'Start with num_speculative_tokens=1 and increase if your model supports a deeper draft. The deeper the draft, the bigger the potential speedup — but acceptance rates vary per model.',
+        },
+      ],
+      nextSlug: 'advanced',
+      nextLabel: 'More: multi-GPU & quantization →',
     },
     {
       slug: 'advanced',

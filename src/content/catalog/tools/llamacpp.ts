@@ -221,8 +221,107 @@ export const llamacpp: ToolDef = {
       ],
       choices: [
         { label: 'Go deeper — run the built-in server & tune performance', to: 'advanced' },
+        {
+          label: 'Try MTP for 2× speedup',
+          to: 'mtp',
+          hint: 'Multi-Token Prediction — draft multiple tokens per forward pass. Needs an MTP-enabled GGUF.',
+        },
         { label: "I'm chatting in the terminal — wrap up", to: 'done' },
       ],
+    },
+    {
+      slug: 'mtp',
+      title: 'Multi-Token Prediction — 2× faster inference',
+      body: [
+        {
+          type: 'paragraph',
+          text: 'MTP (Multi-Token Prediction) landed in llama.cpp via PR #22673 (May 2026). Instead of generating one token at a time, compatible models can draft several tokens in a single forward pass and verify them as a batch. No separate draft model needed — the MTP heads are built into the GGUF file.',
+        },
+        {
+          type: 'heading',
+          text: 'The numbers',
+        },
+        {
+          type: 'paragraph',
+          text: 'Early community benchmarks on Qwen3.6 27B show substantial real-world gains:',
+        },
+        {
+          type: 'list',
+          items: [
+            'RTX 3090 (Q4_K_M): 38 → 65 tok/s (~1.7× speedup)',
+            'RTX 3090 (Q8_0): 38 → 59 tok/s with --spec-draft-n-max 3',
+            'Dual RTX 3090 (Q8_0, layer split): 25.7 → 55.9 tok/s (~2.2×)',
+            'AMD Strix Halo (Q8_0): 7.4 → 18.1 tok/s (~2.4× — biggest relative gain)',
+          ],
+        },
+        {
+          type: 'callout',
+          tone: 'info',
+          text: 'Output quality is byte-identical to standard generation at the same seed and temperature. MTP changes only the speed — not what the model says.',
+        },
+        {
+          type: 'heading',
+          text: 'What you need',
+        },
+        {
+          type: 'list',
+          items: [
+            'A recent llama.cpp build with MTP support (commit after PR #22673 merge, or a pre-built Docker image with MTP baked in).',
+            'An MTP-enabled GGUF — look for "MTP" in the model repo name on Hugging Face (e.g. "Qwen3.6-27B-MTP-UD-GGUF" from unsloth or havenoammo). These are standard GGUFs with extra MTP head tensors grafted on.',
+            'Enough memory headroom for the draft process — MTP adds a small overhead per forward pass but the net gain is positive.',
+          ],
+        },
+        {
+          type: 'heading',
+          text: 'How to run it',
+        },
+        {
+          type: 'paragraph',
+          text: 'Download an MTP-enabled GGUF and pass two extra flags to llama-server or llama-cli:',
+        },
+        {
+          type: 'code',
+          lang: 'bash',
+          code: 'llama-server -m ./qwen3.6-27b-mtp-q4_k_m.gguf \
+  -ngl 999 --flash-attn on \
+  --spec-type mtp \
+  --spec-draft-n-max 3',
+        },
+        {
+          type: 'list',
+          items: [
+            '--spec-type mtp: enables speculative decoding using the model\'s built-in MTP heads.',
+            '--spec-draft-n-max 3: max draft tokens per step. Most MTP models have 3 heads; setting this higher wastes compute.',
+            'MTP works with llama-cli too: add the same flags for interactive chat.',
+          ],
+        },
+        {
+          type: 'heading',
+          text: 'Pre-built Docker images (easiest)',
+        },
+        {
+          type: 'paragraph',
+          text: 'If you don\'t want to build from source, pre-built Docker images with MTP baked in are available:',
+        },
+        {
+          type: 'code',
+          lang: 'bash',
+          code: 'docker run --gpus all --rm \
+  -p 8080:8080 \
+  -v ./models:/models \
+  havenoammo/llama:cuda13-server \
+  -m /models/qwen3.6-27b-mtp.gguf \
+  --port 8080 --host 0.0.0.0 \
+  --spec-type mtp --spec-draft-n-max 3',
+        },
+        {
+          type: 'callout',
+          tone: 'tip',
+          text: 'MTP gains are strongest on dense models. Mixture-of-Experts (MoE) models see smaller improvements since only a fraction of parameters activate per token — there\'s less sequential work to parallelise.',
+        },
+      ],
+      nextSlug: 'advanced',
+      nextLabel: 'More: server, GPU offload & quantization →',
     },
     {
       slug: 'advanced',

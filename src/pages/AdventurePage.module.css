@@ -1,0 +1,61 @@
+.page {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 3rem;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.75rem;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.15rem;
+  font-family: var(--font-display);
+}
+
+.brand strong {
+  color: var(--accent);
+}
+
+.mark {
+  color: var(--accent);
+  font-size: 1.3rem;
+}
+
+.main {
+  flex: 1;
+}
+
+.footer {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.recap {
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+/* On desktop with sidebar, shift content right */
+@media (min-width: 820px) {
+  .page {
+    padding-left: 5.5rem;
+  }
+}
+
+/* On mobile, leave room for the bottom nav bar */
+@media (max-width: 819px) {
+  .page {
+    padding-bottom: 5rem;
+  }
+}

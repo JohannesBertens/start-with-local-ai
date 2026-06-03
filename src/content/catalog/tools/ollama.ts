@@ -45,7 +45,7 @@ export const ollama: ToolDef = {
             },
             { type: 'paragraph', text: 'Confirm it is installed by checking the version:' },
             { type: 'code', lang: 'powershell', code: 'ollama --version' },
-            gpuNote(ctx.hardware),
+            gpuNote(ctx.hardware, ctx.ramGb),
             {
               type: 'callout',
               tone: 'tip',
@@ -116,7 +116,7 @@ export const ollama: ToolDef = {
               text: 'It installs the binary, creates a systemd service, and detects an NVIDIA or AMD GPU if present. Check the version:',
             },
             { type: 'code', lang: 'bash', code: 'ollama --version' },
-            gpuNote(ctx.hardware),
+            gpuNote(ctx.hardware, ctx.ramGb),
           ],
         };
     }

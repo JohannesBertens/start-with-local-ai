@@ -24,18 +24,39 @@ export function hardwareLabel(hw?: Hardware): string {
   }
 }
 
+/** Per-VRAM-tier NVIDIA GPU callout, so the advice matches the user's chosen tier. */
+function nvidiaGpuNote(ramGb?: number): ContentBlock {
+  const tip = (() => {
+    switch (ramGb) {
+      case 8:
+        return 'NVIDIA GPU with 8 GB VRAM: install the proprietary driver for CUDA acceleration. You are limited to small quantized models — Qwen 3.5 9B at Q4 is your best option. Expect to run 1B–9B class models only.';
+      case 12:
+        return 'NVIDIA GPU with 12 GB VRAM — install the proprietary driver for CUDA. Handles 7B–14B models at Q4. The most common Steam tier (RTX 3060/4070/5070).';
+      case 16:
+        return 'NVIDIA GPU with 16 GB VRAM — install the proprietary driver for CUDA. Sweet spot for mid-range GPUs (RTX 4080/5080). Runs Qwen 3.6 27B at Q4 with short context, or Qwen 3.5 35B-A3B MoE at ~100 tok/s with RAM offload.';
+      case 24:
+        return 'NVIDIA GPU with 24 GB VRAM (e.g. RTX 3090/4090) — install the proprietary driver for CUDA. The enthusiast sweet spot: Qwen 3.6 27B at Q5, Qwen 3.5 32B at Q4, or 35B-A3B MoE at ~140 tok/s.';
+      case 32:
+        return 'NVIDIA GPU with 32 GB VRAM (RTX 5090) — install the proprietary driver for CUDA. The new consumer flagship with 1,792 GB/s GDDR7. Runs Qwen 3.6 27B at Q8 (near-lossless) or Qwen 3.5 72B at IQ2 for the first time on a single consumer card.';
+      case 48:
+        return 'Dual NVIDIA GPUs with 48 GB total VRAM — install the proprietary driver for CUDA. The community path to 70B models: Qwen 3.5 72B at Q4 via --tensor-split on two used 3090s (~$1,400).';
+      case 96:
+        return 'NVIDIA GPU with 96 GB VRAM (RTX PRO 6000 / L40S) — install the proprietary driver for CUDA. Professional tier: runs Qwen 3.5 72B at full FP16, Qwen 3.5 122B-A10B MoE at IQ4, or Step 3.7 Flash (198B MoE) via CPU offload.';
+      default:
+        return 'NVIDIA GPU path: install the proprietary driver so CUDA acceleration kicks in automatically. For LLMs, VRAM determines what fits — the community workhorse is a used 24 GB RTX 3090 (~$700); the new performance king is the 32 GB RTX 5090 (~$2,000) at 1,792 GB/s.';
+    }
+  })();
+  return { type: 'callout', tone: 'tip', text: tip };
+}
+
 /**
  * A reusable callout that tailors GPU-acceleration advice to the chosen
- * hardware. Tools that auto-detect the GPU (Ollama, llama.cpp) share this.
+ * hardware and VRAM. Tools that auto-detect the GPU (Ollama, llama.cpp) share this.
  */
-export function gpuNote(hw?: Hardware): ContentBlock {
+export function gpuNote(hw?: Hardware, ramGb?: number): ContentBlock {
   switch (hw) {
     case 'nvidia-gpu':
-      return {
-        type: 'callout',
-        tone: 'tip',
-        text: 'NVIDIA GPU path: install the proprietary driver so CUDA acceleration kicks in automatically. For LLMs, VRAM determines what fits — the community workhorse is a used 24 GB RTX 3090 (~$700); the new performance king is the 32 GB RTX 5090 (~$2,000) at 1,792 GB/s.',
-      };
+      return nvidiaGpuNote(ramGb);
     case 'amd-gpu':
       return {
         type: 'callout',

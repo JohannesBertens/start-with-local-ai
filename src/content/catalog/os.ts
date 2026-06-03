@@ -383,6 +383,16 @@ export const vramTiers: RamTierDef[] = [
         type: 'paragraph',
         text: '8 GB is enough to run 1B–3B-parameter models with heavy quantization (Q4 or lower). It is tight for anything serious — you will be limited to small chat models and tiny image generators.',
       },
+      {
+        type: 'heading',
+        text: 'Best 2026 model for this tier',
+      },
+      {
+        type: 'list',
+        items: [
+          'Qwen 3.5 9B at Q4_K_M (~7 GB) — 54–58 tok/s. Beats GPT-OSS-120B (13× larger) on MMLU-Pro (82.5 vs 80.8). Natively multimodal (text, image, video). The definitive 8 GB pick.',
+        ],
+      },
     ],
   },
   {
@@ -393,6 +403,18 @@ export const vramTiers: RamTierDef[] = [
       {
         type: 'paragraph',
         text: '12 GB is the most common VRAM tier on Steam — it handles 7B–14B models comfortably at Q4 and is a solid entry point. The RTX 3060 (12 GB), RTX 4070, and RTX 5070 all live here.',
+      },
+      {
+        type: 'heading',
+        text: 'Best 2026 model for this tier',
+      },
+      {
+        type: 'list',
+        items: [
+          'Qwen 3.5 14B at Q4_K_M (~9 GB, 9–12 tok/s) — the strongest dense model under 20B from any lab. Apache 2.0, natively multimodal.',
+          'Coding pick: Qwen 3.5 9B at Q6 (~9 GB) for higher precision on code tasks.',
+          'Speed pick: Qwen 3.5 35B-A3B MoE at IQ3 (~15 GB) with some CPU offload — only 3.6B active per token, ~60+ tok/s.',
+        ],
       },
     ],
   },
@@ -405,6 +427,18 @@ export const vramTiers: RamTierDef[] = [
         type: 'paragraph',
         text: '16 GB handles 7B–13B-parameter models comfortably at Q4/Q5 and is the sweet spot for most mid-range consumer GPUs. The RTX 4080, RTX 5080, RTX 4070 Ti Super, and RX 9070 XT all live here.',
       },
+      {
+        type: 'heading',
+        text: 'Best 2026 model for this tier',
+      },
+      {
+        type: 'list',
+        items: [
+          'Top dense: Qwen 3.6 27B at Q4_K_M (~16 GB) — SWE-bench Verified 77.2%, competitive with Claude 4.5 Opus. Apache 2.0. Trim context with --max-model-len 32K for tight fit.',
+          'Top MoE: Qwen 3.5 35B-A3B at Q4 (~19 GB with RAM offload) — 35B total, 3.6B active, ~100+ tok/s. 35B quality at tiny inference cost.',
+          'Qwen 3.6 27B excels on coding/agentic tasks; 35B-A3B is faster for chat and iterative work.',
+        ],
+      },
     ],
   },
   {
@@ -415,6 +449,20 @@ export const vramTiers: RamTierDef[] = [
       {
         type: 'paragraph',
         text: '24 GB is the enthusiast sweet spot. It runs 27B–32B models at Q4 with room for context and is the most popular single-GPU choice for serious local LLM work. The RTX 3090 (~$700 used) and RTX 4090 (~$1,600) live here.',
+      },
+      {
+        type: 'heading',
+        text: 'Best 2026 models for this tier',
+      },
+      {
+        type: 'list',
+        items: [
+          'Top coding: Qwen 3.6 27B at Q5 (~19 GB) — 5 GB headroom for 64K+ context. SWE-bench 77.2%.',
+          'Top quality dense: Qwen 3.5 32B at Q4_K_M (~19 GB) — fits with 5 GB for context.',
+          'Speed king: Qwen 3.5 35B-A3B MoE at Q4 (~21 GB) — ~140 tok/s on 4090 (only 3.6B active).',
+          'MoE quality: Qwen 3.5 30B-A3B at Q4 (~18 GB) — ~150–196 tok/s, 3B active.',
+          'Note: 72B at Q4 (~40 GB) does not fit — need 32 GB or dual GPU.',
+        ],
       },
     ],
   },
@@ -427,6 +475,20 @@ export const vramTiers: RamTierDef[] = [
         type: 'paragraph',
         text: '32 GB is the RTX 5090 tier and the new consumer performance king with 1,792 GB/s GDDR7 bandwidth. It runs 32B models at Q4 with long context comfortably, and can squeeze 70B at Q3–Q4 with careful settings.',
       },
+      {
+        type: 'heading',
+        text: 'Best 2026 models for this tier',
+      },
+      {
+        type: 'list',
+        items: [
+          'Flagship dense: Qwen 3.6 27B at Q8 (~22 GB) — near-lossless precision with 10 GB KV cache headroom for 64K+ context.',
+          'Breakthrough: Qwen 3.5 72B at IQ2_M (~26–28 GB) — first consumer card that can run a 70B-class model.',
+          'MoE at speed: Qwen 3.5 35B-A3B at Q8 (~32 GB fits exactly) — ~140 tok/s.',
+          'Blackwell MXFP4 halves VRAM for compatible models — a 32 GB card can effectively hold 64 GB of weights.',
+          'Note: DeepSeek V3.2 (671B MoE) still requires multi-GPU — not feasible on a single card.',
+        ],
+      },
     ],
   },
   {
@@ -436,7 +498,19 @@ export const vramTiers: RamTierDef[] = [
     info: [
       {
         type: 'paragraph',
-        text: '48 GB is the dual-consumer-GPU tier — two RTX 3090s or 4090s in a single machine. This is the community favourite path to 70B-class models (Llama 3.3 70B fits at Q4) at a fraction of data-centre cost.',
+        text: '48 GB is the dual-consumer-GPU tier — two RTX 3090s or 4090s in a single machine. This is the community favourite path to 70B-class models at a fraction of data-centre cost.',
+      },
+      {
+        type: 'heading',
+        text: 'Best 2026 models for this tier',
+      },
+      {
+        type: 'list',
+        items: [
+          'Qwen 3.5 72B at Q4_K_M (~40 GB) via --tensor-split on two 3090s (~$1,400 total). Apache 2.0, 256K context. The community-standard 70B path.',
+          'Step 3.5 Flash (196B MoE, 11B active) at IQ3 (94 GB) — fits via CPU offload on dual 3090. SWE-bench 74.4%, AIME 97.3%.',
+          'Qwen 3.5 122B-A10B MoE at IQ4_KSS (~61 GB) — fits via offload. 10B active per token.',
+        ],
       },
     ],
   },
@@ -449,6 +523,19 @@ export const vramTiers: RamTierDef[] = [
         type: 'paragraph',
         text: '96 GB is the professional workstation tier (RTX PRO 6000, L40S). It can hold 70B models at FP16 and 120B+ MoE models at Q4. The go-to for a single-card setup when 24–48 GB is not enough.',
       },
+      {
+        type: 'heading',
+        text: 'Best 2026 models for this tier',
+      },
+      {
+        type: 'list',
+        items: [
+          'Qwen 3.5 72B at full FP16 — the only consumer/semi-pro card that can run 70B without any quantization loss.',
+          'Qwen 3.5 122B-A10B MoE at IQ4_KSS (~61 GB, 4.3 BPW) — fits on a single card with 35 GB for context. Apache 2.0.',
+          'Step 3.5 Flash (196B MoE, 11B active) at Q4_K_S (112 GB) — fits on RTX PRO 6000 via CPU offload. 100–300 tok/s, SWE-bench 74.4%.',
+          'Step 3.7 Flash (198B MoE + vision) at IQ4_XS (105 GB) — SWE-Bench PRO 56.3, ClawEval 67.1. Apache 2.0, May 2026.',
+        ],
+      },
     ],
   },
   {
@@ -459,6 +546,18 @@ export const vramTiers: RamTierDef[] = [
       {
         type: 'paragraph',
         text: '256 GB is the B200 and GB200 NVL72 configuration. It is rarely needed — the only workloads that use it are multi-hundred-billion-parameter models with long context at full precision.',
+      },
+      {
+        type: 'heading',
+        text: 'Best 2026 models for this tier',
+      },
+      {
+        type: 'list',
+        items: [
+          'Kimi K2.6 (1T MoE, 32B active, Modified MIT, Apr 2026) — beats GPT-5.4 on SWE-Bench Pro (58.6). Needs ~350 GB at Dynamic 2-bit. Cluster-class.',
+          'DeepSeek V3.2 (671B, 37B active, MIT) — the pragmatic server workhorse. 33 tok/s with EP32. Fits at Q4 on server hardware.',
+          'DeepSeek V4 Flash (284B, 13B active, MIT) — ~160 GB official weights, fits at Q4 (~80 GB) on this tier.',
+        ],
       },
     ],
   },

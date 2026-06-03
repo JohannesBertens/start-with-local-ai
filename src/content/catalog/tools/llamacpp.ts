@@ -103,7 +103,7 @@ export const llamacpp: ToolDef = {
                 'Unzip it to a folder, e.g. C:\\llama.cpp, and open a terminal in that folder.',
               ],
             },
-            gpuNote(ctx.hardware),
+            gpuNote(ctx.hardware, ctx.ramGb),
             {
               type: 'callout',
               tone: 'tip',
@@ -151,7 +151,7 @@ export const llamacpp: ToolDef = {
                       code: 'cmake -B build -DGGML_CUDA=ON\ncmake --build build --config Release -j',
                     },
                   ]),
-            gpuNote(ctx.hardware),
+            gpuNote(ctx.hardware, ctx.ramGb),
             {
               type: 'callout',
               tone: 'tip',
@@ -168,21 +168,29 @@ export const llamacpp: ToolDef = {
       body: [
         {
           type: 'paragraph',
-          text: 'Unlike Ollama or LM Studio, llama.cpp does not manage models for you. It runs GGUF files — a single-file format you download yourself, usually from Hugging Face.',
+          text: 'llama.cpp can download models directly from Hugging Face with the -hf flag — no browser needed. The first command fetches the model and drops you into a chat:',
+        },
+        {
+          type: 'code',
+          lang: 'bash',
+          code: 'llama-cli -hf Qwen/Qwen3.6-27B-GGUF:Q4_K_M -cnv',
+        },
+        {
+          type: 'paragraph',
+          text: 'The format is llama-cli -hf <user>/<repo>:<quant>. The :<quant> suffix picks a specific quantization (omitting it selects a default). Models are cached locally so subsequent runs start instantly.',
         },
         {
           type: 'list',
-          ordered: true,
           items: [
-            'On https://huggingface.co search for a model name plus "GGUF" (e.g. "Qwen3.5-4B GGUF").',
-            'Open a repository from a quantizer such as "bartowski" or "unsloth".',
-            'In the Files tab, download one .gguf file. A "Q4_K_M" quant is the popular quality/size balance.',
+            'Q8 is near-lossless but large (~19 GB for a 27B).',
+            'Q4_K_M is the popular quality/size balance (~16 GB for a 27B).',
+            'Q3/Q2 are tiny but noticeably weaker.',
           ],
         },
         {
           type: 'callout',
-          tone: 'info',
-          text: 'The quant in the filename trades size for quality: Q8 is near-lossless but large; Q4_K_M is a great default; Q2/Q3 are tiny but noticeably weaker.',
+          tone: 'tip',
+          text: 'Prefer to download manually? Visit huggingface.co, search "<model name> GGUF" (e.g. "Qwen3.5-4B GGUF"), open a quantizer repo like bartowski or unsloth, and download a .gguf file. Then run llama-cli -m ./model.gguf -cnv.',
         },
       ],
       nextSlug: 'run',

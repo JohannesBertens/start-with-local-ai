@@ -99,7 +99,7 @@ export const tabby: ToolDef = {
                 ? '.\\tabby.exe serve --model StarCoder2-3B --device cuda'
                 : '.\\tabby.exe serve --model StarCoder2-3B',
             },
-            gpuNote(ctx.hardware),
+            gpuNote(ctx.hardware, ctx.ramGb),
           ],
         };
       case 'linux':
@@ -118,7 +118,7 @@ export const tabby: ToolDef = {
                 ? '# from https://github.com/TabbyML/tabby/releases\nchmod +x tabby\n./tabby serve --model StarCoder2-3B --device cuda'
                 : '# from https://github.com/TabbyML/tabby/releases\nchmod +x tabby\n./tabby serve --model StarCoder2-3B',
             },
-            gpuNote(ctx.hardware),
+            gpuNote(ctx.hardware, ctx.ramGb),
           ],
         };
     }

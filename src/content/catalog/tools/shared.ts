@@ -34,7 +34,7 @@ export function gpuNote(hw?: Hardware): ContentBlock {
       return {
         type: 'callout',
         tone: 'tip',
-        text: 'NVIDIA GPU detected path: install the proprietary driver and the CUDA toolkit so CUDA acceleration kicks in automatically.',
+        text: 'NVIDIA GPU path: install the proprietary driver so CUDA acceleration kicks in automatically. For LLMs, VRAM determines what fits — the community workhorse is a used 24 GB RTX 3090 (~$700); the new performance king is the 32 GB RTX 5090 (~$2,000) at 1,792 GB/s.',
       };
     case 'amd-gpu':
       return {

@@ -110,26 +110,27 @@ export const hardwareProfiles: HardwareDef[] = [
   {
     id: 'nvidia-gpu',
     label: 'NVIDIA GPU (GeForce / RTX / data-center)',
-    hint: 'CUDA acceleration — the most broadly supported path.',
+    hint: 'CUDA — the broadest support. VRAM is what matters, and 16 GB is the 2026 minimum.',
     askRam: true,
     ramHint: '16',
     info: [
       {
         type: 'paragraph',
-        text: 'NVIDIA GPUs are the best-supported hardware for local AI. CUDA is the de-facto standard that nearly every engine targets first, so you get the widest tool support and the most reliable performance — from GeForce/RTX cards (including the RTX 50-series "Blackwell") to data-center cards.',
+        text: 'NVIDIA is the most broadly supported hardware for local AI — every engine targets CUDA first. For LLM work, VRAM capacity matters far more than core count or clock speed: if the model does not fit, performance collapses to ~2 tok/s via CPU offload.',
       },
       {
         type: 'list',
         items: [
-          'Best for: the broadest compatibility — every tool here, including vLLM and SGLang, runs well on NVIDIA.',
-          'VRAM is the limit: ~8 GB runs small quantized models, 12–16 GB is comfortable, and 24 GB+ opens up larger models and longer context.',
-          'Setup: install a recent NVIDIA driver; most tools bundle the CUDA runtime so you rarely install it separately.',
+          'VRAM is everything: an 8B model needs ~6 GB at Q4; 32B needs ~20 GB; 70B needs ~43 GB. See the VRAM tier above for what fits your card.',
+          'The used RTX 3090 (24 GB, ~$700) is the community value king — two of them run 70B models for half the cost of a single 5090.',
+          'The RTX 5090 (32 GB GDDR7, ~$2,000) is the new performance leader with 1,792 GB/s bandwidth — 2.3× faster than a 4090 on 8B models.',
+          '16 GB is the 2026 minimum for a daily-driver local LLM; 8 GB cards are severely limiting.',
         ],
       },
       {
         type: 'callout',
         tone: 'tip',
-        text: 'A model has to fit in VRAM for full GPU speed. If it spills into system RAM, expect a sharp slowdown — pick a smaller or more heavily quantized model.',
+        text: 'A model has to fit in VRAM for full GPU speed. If it spills into system RAM, expect a sharp slowdown — pick a smaller or more heavily quantized model. Quantization (GGUF Q4_K_M) cuts memory use by ~4× with minimal quality loss.',
       },
     ],
   },
@@ -385,57 +386,68 @@ export const vramTiers: RamTierDef[] = [
     ],
   },
   {
-    id: 16,
-    label: '16 GB',
-    hint: 'RTX 4070 / RX 7800 class — comfortable for 7B–13B.',
+    id: 12,
+    label: '12 GB',
+    hint: 'RTX 3060/4070/5070 class — entry-level for 7B–14B models.',
     info: [
       {
         type: 'paragraph',
-        text: '16 GB handles 7B–13B-parameter models comfortably at Q4/Q5 and is the sweet spot for most mid-range consumer GPUs. The RTX 4070, RTX 4060 Ti 16 GB, and RX 7800 XT all live here.',
+        text: '12 GB is the most common VRAM tier on Steam — it handles 7B–14B models comfortably at Q4 and is a solid entry point. The RTX 3060 (12 GB), RTX 4070, and RTX 5070 all live here.',
+      },
+    ],
+  },
+  {
+    id: 16,
+    label: '16 GB',
+    hint: 'RTX 4080/5080 class — comfortable for 7B–13B at higher quants.',
+    info: [
+      {
+        type: 'paragraph',
+        text: '16 GB handles 7B–13B-parameter models comfortably at Q4/Q5 and is the sweet spot for most mid-range consumer GPUs. The RTX 4080, RTX 5080, RTX 4070 Ti Super, and RX 9070 XT all live here.',
       },
     ],
   },
   {
     id: 24,
     label: '24 GB',
-    hint: 'RTX 4090 / RX 9070 class — room for 30B+ class.',
+    hint: 'RTX 3090/4090 class — runs 30B+ models at Q4.',
     info: [
       {
         type: 'paragraph',
-        text: '24 GB opens the door to 30B–70B-parameter models with Q4/Q5 quantization. The RTX 4090 (24 GB), RTX 5090 (32 GB), and high-end RDNA4 cards sit here.',
+        text: '24 GB is the enthusiast sweet spot. It runs 27B–32B models at Q4 with room for context and is the most popular single-GPU choice for serious local LLM work. The RTX 3090 (~$700 used) and RTX 4090 (~$1,600) live here.',
       },
     ],
   },
   {
-    id: 40,
-    label: '40 GB',
-    hint: 'A100 40 GB — data-center entry.',
+    id: 32,
+    label: '32 GB',
+    hint: 'RTX 5090 — flagship consumer card, 32B models with headroom.',
     info: [
       {
         type: 'paragraph',
-        text: 'The A100 40 GB is a data-center card with ECC VRAM. It runs 30B–70B models at Q4 comfortably and is the most common enterprise starting point.',
+        text: '32 GB is the RTX 5090 tier and the new consumer performance king with 1,792 GB/s GDDR7 bandwidth. It runs 32B models at Q4 with long context comfortably, and can squeeze 70B at Q3–Q4 with careful settings.',
       },
     ],
   },
   {
-    id: 80,
-    label: '80 GB',
-    hint: 'A100 / H100 / MI300X — large models at FP16.',
+    id: 48,
+    label: '48 GB',
+    hint: 'Dual GPU (2× RTX 3090/4090) — runs 70B models at Q4.',
     info: [
       {
         type: 'paragraph',
-        text: '80 GB is the standard high-end data-center tier (A100 80 GB, H100, MI300X). It can hold 70B–405B-parameter models at FP16 and very large MoE mixes.',
+        text: '48 GB is the dual-consumer-GPU tier — two RTX 3090s or 4090s in a single machine. This is the community favourite path to 70B-class models (Llama 3.3 70B fits at Q4) at a fraction of data-centre cost.',
       },
     ],
   },
   {
-    id: 160,
-    label: '160 GB',
-    hint: 'H100 SXM / MI300X config — massive context.',
+    id: 96,
+    label: '96 GB',
+    hint: 'RTX PRO 6000 / L40S — professional, 70B at FP16.',
     info: [
       {
         type: 'paragraph',
-        text: '160 GB is the H100 SXM5 configuration and the MI300X default. It can hold 405B+ class models at FP16 and enables huge context windows without quantization.',
+        text: '96 GB is the professional workstation tier (RTX PRO 6000, L40S). It can hold 70B models at FP16 and 120B+ MoE models at Q4. The go-to for a single-card setup when 24–48 GB is not enough.',
       },
     ],
   },
@@ -466,8 +478,8 @@ export const RAM_OPTIONS: Record<string, number[]> = {
   'apple-silicon': [16, 24, 32, 48, 64, 128],
   'amd-strix': [16, 32, 64, 128],
   cpu: [8, 16, 32, 64, 128, 256],
-  'nvidia-gpu': [8, 16, 24, 40, 80, 160],
-  'amd-gpu': [8, 16, 24, 40, 80, 160],
+  'nvidia-gpu': [8, 12, 16, 24, 32, 48, 96],
+  'amd-gpu': [8, 12, 16, 24, 32, 48, 96],
 };
 
 export function ramOptionsFor(hardware: string): RamTierDef[] {

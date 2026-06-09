@@ -381,7 +381,7 @@ export function CalculatorPage() {
               max={2.0}
               step={0.05}
               value={overheadFactor}
-              onChange={(e) => setOverheadFactor(Math.max(1.0, Number(e.target.value)))}
+              onChange={(e) => setOverheadFactor(Math.max(1.0, safeVal(Number(e.target.value), 1.15)))}
             />
           </div>
         </form>
@@ -529,7 +529,7 @@ export function CalculatorPage() {
                   min={1}
                   step={1}
                   value={lifespanYears}
-                  onChange={(e) => setLifespanYears(Math.max(1, Number(e.target.value)))}
+                  onChange={(e) => setLifespanYears(Math.max(1, safeVal(Number(e.target.value), 3)))}
                 />
               </div>
             </div>

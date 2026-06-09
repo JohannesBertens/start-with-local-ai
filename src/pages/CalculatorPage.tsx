@@ -108,13 +108,7 @@ function formatParams(val: number): string {
 /** Format a context length for display. */
 function formatContext(val: number): string {
   if (val >= CTX_MAX) return '1M';
-  if (val >= 1048576) return '1M';
-  if (val >= 1024) {
-    const k = val / 1024;
-    if (k >= 1024) return '1M';
-    if (k >= 100) return Math.round(k) + 'K';
-    return Math.round(k) + 'K';
-  }
+  if (val >= 1024) return Math.round(val / 1024) + 'K';
   return String(val);
 }
 
@@ -164,10 +158,8 @@ export function CalculatorPage() {
   const [ctxSlider, setCtxSlider] = useState(ctxToSlider(4096));
   const [overheadFactor, setOverheadFactor] = useState(1.15);
 
-  /* ---- speed slider (NEW) ---- */
-  const [speedSlider, setSpeedSlider] = useState(
-    Math.round(((SPEED_DEFAULT - SPEED_MIN) / (SPEED_MAX - SPEED_MIN)) * 1000),
-  );
+  /* ---- speed slider ---- */
+  const [speedTps, setSpeedTps] = useState(SPEED_DEFAULT);
 
   /* ---- cost comparison inputs ---- */
   const [apiProviderId, setApiProviderId] = useState(API_PROVIDERS[0].id);
@@ -175,7 +167,7 @@ export function CalculatorPage() {
   const [elecRate, setElecRate] = useState(0.12);
   const [powerDraw, setPowerDraw] = useState(300);
   const [lifespanYears, setLifespanYears] = useState(3);
-  const [inputRatioSlider, setInputRatioSlider] = useState(60); // 50-100, represents %
+  const [inputRatioSlider, setInputRatioSlider] = useState(60); // 0-100, represents %
 
   /* ---- export ---- */
   const [exporting, setExporting] = useState(false);
@@ -185,7 +177,7 @@ export function CalculatorPage() {
   /* ---- derived values ---- */
   const paramVal = sliderToParams(paramSlider);
   const ctxVal = sliderToCtx(ctxSlider);
-  const speedTps = Math.round(SPEED_MIN + (speedSlider / 1000) * (SPEED_MAX - SPEED_MIN));
+  // speedTps is stored directly as the state
   const inputRatio = inputRatioSlider / 100;
 
   const quantDef = QUANT_OPTIONS.find((q) => q.id === quant) ?? QUANT_OPTIONS[3];
@@ -206,6 +198,8 @@ export function CalculatorPage() {
     return costPerSecond * secondsPer1M;
   }, [hardwareCost, lifespanYears, powerDraw, elecRate, speedTps]);
 
+  const safeVal = (v: number, fallback: number) => isNaN(v) ? fallback : v;
+
   const apiPer1M = useMemo(() => {
     return selectedProvider.inputPrice * inputRatio + selectedProvider.outputPrice * (1 - inputRatio);
   }, [selectedProvider, inputRatio]);
@@ -215,7 +209,7 @@ export function CalculatorPage() {
 
   const isLocalCheaper = localPer1M < apiPer1M && apiProviderId !== 'local';
   const isApiCheaper = apiPer1M < localPer1M && apiProviderId !== 'local';
-  const isEqual = localPer1M === apiPer1M && apiProviderId !== 'local';
+  const isEqual = Math.abs(localPer1M - apiPer1M) < 0.001 && apiProviderId !== 'local';
 
   /* ---- event handlers ---- */
   const handleQuantChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -223,11 +217,15 @@ export function CalculatorPage() {
   };
 
   const handleExport = useCallback(async () => {
-    if (!captureRef.current) return;
-    setExporting(true);
+    if (!captureRef.current) {
+      setExportError('Nothing to export. Please try again.');
+      return;
+    }
     setExportError(null);
     try {
-      const dataUrl = await toPng(captureRef.current, { pixelRatio: 2, quality: 1 });
+      // Capture first (button still says "Export as PNG"), then show loading
+      const dataUrl = await toPng(captureRef.current, { pixelRatio: 2 });
+      setExporting(true);
       const link = document.createElement('a');
       link.download = `model-calculator-${dateStr()}.png`;
       link.href = dataUrl;
@@ -245,7 +243,7 @@ export function CalculatorPage() {
   const paramPct = (paramSlider / 10).toFixed(1);   // 0–100
   const ctxPct = (ctxSlider / 10).toFixed(1);
   const speedPct = ((speedTps - SPEED_MIN) / (SPEED_MAX - SPEED_MIN) * 100).toFixed(1);
-  const inputRatioPct = inputRatioSlider.toFixed(0); // already 50-100
+  const inputRatioPct = inputRatioSlider.toFixed(0); // 0-100
 
   /* ---- render ---- */
   return (
@@ -296,9 +294,7 @@ export function CalculatorPage() {
               onChange={(e) => setParamSlider(Number(e.target.value))}
               style={{ '--slider-pct': paramPct + '%' } as React.CSSProperties}
               aria-label="Model parameters in billions"
-              aria-valuemin={PARAM_MIN}
-              aria-valuemax={PARAM_MAX}
-              aria-valuenow={paramVal}
+              aria-valuetext={`${formatParams(paramVal)}`}
             />
             <p className={styles.hint}>
               Range 0.5B – 1000B (logarithmic scale).
@@ -341,9 +337,7 @@ export function CalculatorPage() {
               onChange={(e) => setCtxSlider(Number(e.target.value))}
               style={{ '--slider-pct': ctxPct + '%' } as React.CSSProperties}
               aria-label="Context length in tokens"
-              aria-valuemin={CTX_MIN}
-              aria-valuemax={CTX_MAX}
-              aria-valuenow={ctxVal}
+              aria-valuetext={`${formatContext(ctxVal)} tokens`}
             />
             <p className={styles.hint}>
               Range 1K – 1M tokens (logarithmic scale).
@@ -366,14 +360,10 @@ export function CalculatorPage() {
               max={SPEED_MAX}
               step={1}
               value={speedTps}
-              onChange={(e) => setSpeedSlider(
-                Math.round(((Number(e.target.value) - SPEED_MIN) / (SPEED_MAX - SPEED_MIN)) * 1000)
-              )}
+              onChange={(e) => setSpeedTps(Number(e.target.value))}
               style={{ '--slider-pct': speedPct + '%' } as React.CSSProperties}
               aria-label="Inference speed in tokens per second"
-              aria-valuemin={SPEED_MIN}
-              aria-valuemax={SPEED_MAX}
-              aria-valuenow={speedTps}
+              aria-valuetext={`${speedTps} tokens per second`}
             />
             <p className={styles.hint}>
               Estimated tokens per second for cost calculation.
@@ -479,16 +469,13 @@ export function CalculatorPage() {
                 id="calc-input-ratio"
                 className={styles.inputRange}
                 type="range"
-                min={50}
+                min={0}
                 max={100}
                 step={1}
                 value={inputRatioSlider}
                 onChange={(e) => setInputRatioSlider(Number(e.target.value))}
                 style={{ '--slider-pct': inputRatioPct + '%' } as React.CSSProperties}
                 aria-label="Input token ratio percentage"
-                aria-valuemin={50}
-                aria-valuemax={100}
-                aria-valuenow={inputRatioSlider}
               />
               <p className={styles.hint}>
                 What fraction of tokens are input vs output. Default 60%.
@@ -506,7 +493,7 @@ export function CalculatorPage() {
                   min={0}
                   step={100}
                   value={hardwareCost}
-                  onChange={(e) => setHardwareCost(Math.max(0, Number(e.target.value)))}
+                  onChange={(e) => setHardwareCost(Math.max(0, safeVal(Number(e.target.value), 0)))}
                 />
               </div>
               <div className={styles.field}>
@@ -518,7 +505,7 @@ export function CalculatorPage() {
                   min={0}
                   step={0.01}
                   value={elecRate}
-                  onChange={(e) => setElecRate(Math.max(0, Number(e.target.value)))}
+                  onChange={(e) => setElecRate(Math.max(0, safeVal(Number(e.target.value), 0)))}
                 />
               </div>
               <div className={styles.field}>
@@ -530,7 +517,7 @@ export function CalculatorPage() {
                   min={0}
                   step={10}
                   value={powerDraw}
-                  onChange={(e) => setPowerDraw(Math.max(0, Number(e.target.value)))}
+                  onChange={(e) => setPowerDraw(Math.max(0, safeVal(Number(e.target.value), 0)))}
                 />
               </div>
               <div className={styles.field}>

@@ -115,6 +115,71 @@
   appearance: auto;
 }
 
+/* ---- Slider header (label + value side by side) ---- */
+.sliderHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sliderValue {
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--accent);
+}
+
+/* ---- Custom range slider ---- */
+.inputRange {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+  margin: 0.4rem 0;
+  /* Filled track via inline --slider-pct variable */
+  background: linear-gradient(
+    to right,
+    var(--accent) 0%,
+    var(--accent) var(--slider-pct, 0%),
+    var(--border) var(--slider-pct, 0%),
+    var(--border) 100%
+  );
+}
+
+.inputRange::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--bg-panel);
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.inputRange::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.inputRange::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--bg-panel);
+  cursor: pointer;
+}
+
+.inputRange:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 /* ---- Result ---- */
 .result {
   background: var(--bg-panel);
@@ -238,6 +303,165 @@
   text-align: center;
 }
 
+/* ---- Cost comparison section (WEB-48) ---- */
+.costSection {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem 1.5rem;
+}
+
+.costSectionTitle {
+  margin: 0 0 1rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.costForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  margin-bottom: 1.2rem;
+}
+
+.costInputsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.costPricingHint {
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+  margin: 0;
+  line-height: 1.3;
+}
+
+/* ---- Side-by-side cost cards ---- */
+.costCards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.costCard {
+  position: relative;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.9rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  transition: border-color var(--transition);
+}
+
+.costCardMuted {
+  opacity: 0.6;
+}
+
+.cheaperCard {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.costCardTitle {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.costCardModel {
+  font-weight: 400;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+
+.cheaperBadge {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--bg);
+  background: var(--accent);
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  align-self: flex-start;
+}
+
+.costRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.82rem;
+}
+
+.costRowLabel {
+  color: var(--ink-soft);
+}
+
+.costRowValue {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* ---- Export button (WEB-49) ---- */
+.exportRow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.exportBtn {
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  padding: 0.65rem 1.75rem;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--accent);
+  color: var(--accent-ink, #fff);
+  cursor: pointer;
+  transition: opacity var(--transition), transform 0.1s ease;
+  letter-spacing: 0.02em;
+}
+
+.exportBtn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.exportBtn:active {
+  transform: translateY(0);
+}
+
+.exportBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.exportBtnLoading {
+  opacity: 0.7;
+}
+
+.exportError {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #d55;
+  text-align: center;
+}
+
+/* ---- Responsive ---- */
 /* On desktop with sidebar */
 @media (min-width: 820px) {
   .page {
@@ -249,5 +473,13 @@
 @media (max-width: 819px) {
   .page {
     padding-bottom: 5rem;
+  }
+
+  .costCards {
+    grid-template-columns: 1fr;
+  }
+
+  .costInputsGrid {
+    grid-template-columns: 1fr;
   }
 }

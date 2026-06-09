@@ -558,7 +558,7 @@ export function CalculatorPage() {
               <div className={styles.costRow}>
                 <span className={styles.costRowLabel}>Per 1K tokens</span>
                 <span className={styles.costRowValue}>
-                  ${localPer1K < 0.00001 ? '< $0.00001' : round2(localPer1K) <= 0 ? '$0.00' : '$' + round2(localPer1K).toFixed(5)}
+                  {localPer1K < 0.00001 ? '< $0.00001' : round2(localPer1K) <= 0 ? '$0.00' : '$' + round2(localPer1K).toFixed(5)}
                 </span>
               </div>
               <div className={styles.costRow}>
@@ -590,7 +590,7 @@ export function CalculatorPage() {
                 <span className={styles.costRowValue}>
                   {apiProviderId === 'local'
                     ? '—'
-                    : '$' + (apiPer1K < 0.00001 ? '< $0.00001' : round2(apiPer1K).toFixed(5))
+                    : (apiPer1K < 0.00001 ? '< $0.00001' : '$' + round2(apiPer1K).toFixed(5))
                   }
                 </span>
               </div>

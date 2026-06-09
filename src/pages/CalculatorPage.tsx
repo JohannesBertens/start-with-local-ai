@@ -40,9 +40,11 @@ const API_PROVIDERS: ApiProvider[] = [
   { id: 'anthropic-sonnet-46',    name: 'Anthropic', model: 'Claude Sonnet 4.6',           inputPrice: 3.00,  outputPrice: 15.00 },
   { id: 'anthropic-sonnet-45',    name: 'Anthropic', model: 'Claude Sonnet 4.5',           inputPrice: 3.00,  outputPrice: 15.00 },
   { id: 'anthropic-haiku-45',     name: 'Anthropic', model: 'Claude Haiku 4.5',            inputPrice: 1.00,  outputPrice: 5.00 },
-  /* OpenAI */
-  { id: 'openai-gpt4o',           name: 'OpenAI',    model: 'GPT-4o',                      inputPrice: 2.50,  outputPrice: 10.00 },
-  { id: 'openai-gpt4o-mini',      name: 'OpenAI',    model: 'GPT-4o-mini',                 inputPrice: 0.15,  outputPrice: 0.60 },
+  /* OpenAI (current standard models — prices from developers.openai.com) */
+  { id: 'openai-gpt55',           name: 'OpenAI',    model: 'GPT-5.5',                     inputPrice: 5.00,  outputPrice: 30.00 },
+  { id: 'openai-gpt54',           name: 'OpenAI',    model: 'GPT-5.4',                     inputPrice: 2.50,  outputPrice: 15.00 },
+  { id: 'openai-gpt54-mini',      name: 'OpenAI',    model: 'GPT-5.4 mini',                inputPrice: 0.75,  outputPrice: 4.50 },
+  { id: 'openai-gpt54-nano',      name: 'OpenAI',    model: 'GPT-5.4 nano',                inputPrice: 0.20,  outputPrice: 1.25 },
   /* Groq */
   { id: 'groq-llama3-70b',        name: 'Groq',      model: 'Llama 3 70B',                 inputPrice: 0.59,  outputPrice: 0.79 },
   /* Local (no cost) */
